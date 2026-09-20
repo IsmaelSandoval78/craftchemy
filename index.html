@@ -3,36 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Craftchemy | Pixel Alchemy & Anvil Solver</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background-color: #0d1117;
-      color: #58a6ff;
-      font-family: monospace;
-      text-align: center;
-    }
-    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #58a6ff; }
-    p { color: #8b949e; font-size: 1.1rem; }
-    .status {
-      display: inline-block;
-      padding: 6px 12px;
-      border: 1px solid #238636;
-      background: #23863622;
-      color: #3fb950;
-      border-radius: 6px;
-      margin-top: 1rem;
-    }
-  </style>
+  <title>Craftchemy | Optimizador de Yunque y Alquimia de Encantamientos</title>
+  <meta name="description" content="Calcula la ruta matemática óptima en el yunque de Minecraft para evitar el error 'Demasiado Caro'.">
+  <link rel="stylesheet" href="style.css">
+  <!-- GSAP CDN para animaciones fluidas a 60 FPS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
-  <h1>Craftchemy</h1>
-  <p>Alquimia pixelada en progreso...</p>
-  <div class="status">● Despliegue activo en Cloudflare Pages</div>
+
+  <header class="app-header">
+    <div class="logo">Craft<span>chemy</span></div>
+    <span class="badge">Anvil Solver v1.0</span>
+  </header>
+
+  <main class="main-container">
+    <!-- Panel Izquierdo: Selección de equipo y libros -->
+    <aside class="sidebar">
+      <h2>1. Selecciona Objeto</h2>
+      <div class="item-selector">
+        <button class="item-btn active" data-item="sword">🗡️ Espada</button>
+        <button class="item-btn" data-item="pickaxe">⛏️ Pico</button>
+        <button class="item-btn" data-item="armor">🛡️ Armadura</button>
+      </div>
+
+      <h2>2. Añade Encantamientos</h2>
+      <div class="enchant-list" id="enchantList">
+        <!-- Generado dinámicamente con JS -->
+      </div>
+      
+      <button id="optimizeBtn" class="btn-primary">Optimizar Combinación</button>
+    </aside>
+
+    <!-- Panel Central: Lienzo interactivo del árbol -->
+    <section class="canvas-area">
+      <div class="canvas-header">
+        <span id="costIndicator" class="cost-pill">Coste Total: -- niveles</span>
+        <button id="resetBtn" class="btn-secondary">Reiniciar</button>
+      </div>
+
+      <div class="tree-wrapper" id="treeContainer">
+        <!-- Capa SVG para conexiones curvas -->
+        <svg id="svgOverlay" class="svg-layer"></svg>
+        <!-- Nodos HTML insertados por JS -->
+        <div id="nodesLayer" class="nodes-layer"></div>
+      </div>
+
+      <div id="statusBanner" class="status-banner hidden"></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</p>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>
