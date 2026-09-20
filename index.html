@@ -3,59 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Craftchemy | Optimizador de Yunque y Alquimia de Encantamientos</title>
-  <meta name="description" content="Calcula la ruta matemática óptima en el yunque de Minecraft para evitar el error 'Demasiado Caro'.">
+  <title>Craftchemy | Suite de Alquimia y Utilidades de Minecraft</title>
+  <meta name="description" content="Herramientas interactivas: optimizador de yunque y árbol de progresión tecnológica para Minecraft.">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
 
   <header class="app-header">
-    <div class="logo">Craft<span>chemy</span></div>
-    <span class="badge">Anvil Solver v1.2</span>
+    <div class="header-brand">
+      <div class="logo">Craft<span>chemy</span></div>
+      <span class="badge">Suite v1.3</span>
+    </div>
+
+    <!-- Navegación por pestañas -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="anvilView">🔨 Anvil Solver</button>
+      <button class="tab-btn" data-tab="progressionView">🪵 Primeras Horas (Progresión)</button>
+    </nav>
   </header>
 
-  <main class="main-container">
-    <!-- Panel Izquierdo: Categorías y Encantamientos -->
-    <aside class="sidebar">
-      <h2>1. Selecciona Objeto</h2>
-      <div class="item-grid" id="itemSelector">
-        <button class="item-btn active" data-item="sword"><span class="pixel-icon">🗡️</span> Espada</button>
-        <button class="item-btn" data-item="pickaxe"><span class="pixel-icon">⛏️</span> Pico</button>
-        <button class="item-btn" data-item="boots"><span class="pixel-icon">🥾</span> Botas</button>
-        <button class="item-btn" data-item="helmet"><span class="pixel-icon">🪖</span> Casco</button>
-        <button class="item-btn" data-item="chestplate"><span class="pixel-icon">🛡️</span> Pechera</button>
-        <button class="item-btn" data-item="bow"><span class="pixel-icon">🏹</span> Arco</button>
-        <button class="item-btn" data-item="crossbow"><span class="pixel-icon">🎯</span> Ballesta</button>
-        <button class="item-btn" data-item="trident"><span class="pixel-icon">🔱</span> Tridente</button>
-      </div>
+  <!-- VISTA 1: ANVIL SOLVER -->
+  <main id="anvilView" class="tab-content active">
+    <div class="main-container">
+      <aside class="sidebar">
+        <h2>1. Selecciona Objeto</h2>
+        <div class="item-grid" id="itemSelector">
+          <button class="item-btn active" data-item="sword"><span class="pixel-icon">🗡️</span> Espada</button>
+          <button class="item-btn" data-item="pickaxe"><span class="pixel-icon">⛏️</span> Pico</button>
+          <button class="item-btn" data-item="boots"><span class="pixel-icon">🥾</span> Botas</button>
+          <button class="item-btn" data-item="helmet"><span class="pixel-icon">🪖</span> Casco</button>
+          <button class="item-btn" data-item="chestplate"><span class="pixel-icon">🛡️</span> Pechera</button>
+          <button class="item-btn" data-item="bow"><span class="pixel-icon">🏹</span> Arco</button>
+          <button class="item-btn" data-item="crossbow"><span class="pixel-icon">🎯</span> Ballesta</button>
+          <button class="item-btn" data-item="trident"><span class="pixel-icon">🔱</span> Tridente</button>
+        </div>
 
-      <h2>2. Añade Encantamientos</h2>
-      <div class="enchant-list" id="enchantList"></div>
-      
-      <button id="optimizeBtn" class="btn-primary">Optimizar Combinación</button>
-    </aside>
+        <h2>2. Añade Encantamientos</h2>
+        <div class="enchant-list" id="enchantList"></div>
+        
+        <button id="optimizeBtn" class="btn-primary">Optimizar Combinación</button>
+      </aside>
 
-    <!-- Panel Central: Lienzo del Árbol y Receta Paso a Paso -->
-    <section class="canvas-area">
-      <div class="canvas-header">
-        <span id="costIndicator" class="cost-pill">Coste Total: -- niveles</span>
-        <button id="resetBtn" class="btn-secondary">Reiniciar</button>
-      </div>
+      <section class="canvas-area">
+        <div class="canvas-header">
+          <span id="costIndicator" class="cost-pill">Coste Total: -- niveles</span>
+          <button id="resetBtn" class="btn-secondary">Reiniciar</button>
+        </div>
 
-      <div class="tree-wrapper" id="treeContainer">
-        <svg id="svgOverlay" class="svg-layer"></svg>
-        <div id="nodesLayer" class="nodes-layer"></div>
-      </div>
+        <div class="tree-wrapper" id="treeContainer">
+          <svg id="svgOverlay" class="svg-layer"></svg>
+          <div id="nodesLayer" class="nodes-layer"></div>
+        </div>
 
-      <div id="statusBanner" class="status-banner hidden"></div>
+        <div id="statusBanner" class="status-banner hidden"></div>
 
-      <!-- Receta textual paso a paso -->
-      <section class="recipe-container hidden" id="recipeBox">
-        <h3>Instrucciones para el Yunque</h3>
-        <ol id="recipeSteps" class="recipe-steps"></ol>
+        <section class="recipe-container hidden" id="recipeBox">
+          <h3>Instrucciones para el Yunque</h3>
+          <ol id="recipeSteps" class="recipe-steps"></ol>
+        </section>
       </section>
-    </section>
+    </div>
+  </main>
+
+  <!-- VISTA 2: PRIMERAS HORAS & PROGRESIÓN -->
+  <main id="progressionView" class="tab-content">
+    <div class="progression-container">
+      <div class="progression-sidebar">
+        <h2>Meta Actual</h2>
+        <p class="section-desc">Selecciona tu siguiente hito de supervivencia:</p>
+        
+        <div class="milestone-list">
+          <button class="milestone-btn active" data-stage="wood">🪵 1. Primer Tronco (Minuto 1)</button>
+          <button class="milestone-btn" data-stage="stone">🪨 2. Era de Piedra (Minuto 3)</button>
+          <button class="milestone-btn" data-stage="night">🔥 3. Refugio y Horno (Minuto 7)</button>
+          <button class="milestone-btn" data-stage="iron">🛡️ 4. Armadura y Hierro (Día 2)</button>
+          <button class="milestone-btn" data-stage="diamond">💎 5. Profundidades y Diamante</button>
+        </div>
+
+        <div class="survival-tip" id="survivalTip">
+          <strong>Regla de Oro:</strong> Rompe solo la madera necesaria para un pico de madera. Mina 3 de piedra y salta directo al pico de piedra; no fabriques herramientas de madera de más.
+        </div>
+      </div>
+
+      <div class="progression-content">
+        <div class="stage-header">
+          <h2 id="stageTitle">Fase 1: El Despertar con un Tronco de Roble</h2>
+          <span class="stage-badge" id="stageBadge">Supervivencia Básica</span>
+        </div>
+
+        <div class="steps-grid" id="stageSteps">
+          <!-- Renderizado dinámico de pasos e ingredientes requeridos -->
+        </div>
+
+        <div class="recipe-calc-box">
+          <h3>Calculadora Exacta de Materia Prima</h3>
+          <p id="resourceBreakdown">Para completar esta fase necesitas: <strong>3 troncos de roble</strong>.</p>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="app-footer">
