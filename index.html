@@ -4,9 +4,354 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Craftchemy | Suite de Alquimia y Utilidades de Minecraft</title>
-  <meta name="description" content="Herramientas interactivas: optimizador de yunque y árbol de progresión tecnológica para Minecraft.">
-  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Herramientas interactivas: optimizador de yunque y árbol de progresión para Minecraft.">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #080b10;
+      --panel-bg: #101722;
+      --border-slot: #243042;
+      --accent-cyan: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-red: #f87171;
+      --accent-purple: #c084fc;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-pixel: "SF Mono", Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-pixel);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header y Pestañas */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.75rem;
+      border-bottom: 2px solid var(--border-slot);
+      background: var(--panel-bg);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+    .logo { font-size: 1.4rem; font-weight: 800; }
+    .logo span { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+    .badge {
+      background: #38bdf81a;
+      color: var(--accent-cyan);
+      border: 1px solid #38bdf850;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.7rem;
+      border-radius: 3px;
+    }
+    .nav-tabs { display: flex; gap: 0.5rem; }
+    .tab-btn {
+      background: #0b1017;
+      border: 1px solid var(--border-slot);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.5rem 0.9rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: #fff; border-color: #3b82f6; }
+    .tab-btn.active {
+      background: #112838;
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Pestañas */
+    .tab-content { display: none; flex: 1; }
+    .tab-content.active { display: block; }
+
+    /* Layout Anvil */
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: calc(100vh - 110px);
+    }
+    .sidebar {
+      background: var(--panel-bg);
+      border-right: 2px solid var(--border-slot);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .sidebar h2 {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .item-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+    .item-btn {
+      background: #0b1017;
+      border: 1px solid var(--border-slot);
+      color: var(--text-main);
+      padding: 0.5rem;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.75rem;
+      text-align: left;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+    .item-btn:hover { border-color: #3f516d; background: #131d2b; }
+    .item-btn.active {
+      border-color: var(--accent-cyan);
+      background: #112838;
+      color: #fff;
+      box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.25);
+    }
+
+    .enchant-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    .enchant-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.7rem;
+      background: #0b1017;
+      border: 1px solid var(--border-slot);
+      cursor: pointer;
+      font-size: 0.8rem;
+      border-radius: 3px;
+    }
+    .enchant-item:hover { border-color: #3b82f6; }
+    .enchant-item.selected {
+      border-color: var(--accent-purple);
+      background: #231535;
+      color: #e9d5ff;
+    }
+
+    .btn-primary, .btn-secondary {
+      font-family: inherit;
+      font-weight: 700;
+      padding: 0.7rem;
+      cursor: pointer;
+      border: none;
+      font-size: 0.85rem;
+      border-radius: 3px;
+    }
+    .btn-primary { background: var(--accent-cyan); color: #050b14; margin-top: auto; }
+    .btn-secondary { background: #0f172a; border: 1px solid var(--border-slot); color: var(--text-muted); }
+
+    /* Canvas */
+    .canvas-area {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at 50% 30%, #151d2a 0%, #070a0e 100%);
+      padding: 1.25rem 1.75rem;
+      overflow-y: auto;
+    }
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    .cost-pill {
+      padding: 0.4rem 0.8rem;
+      background: #0d1522;
+      border: 1px solid var(--border-slot);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 3px;
+    }
+
+    .tree-wrapper {
+      position: relative;
+      min-height: 420px;
+      width: 100%;
+      margin: 1rem 0;
+    }
+    .svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .nodes-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+    .tree-node {
+      position: absolute;
+      min-width: 155px;
+      padding: 0.6rem 0.8rem;
+      background: #0f1520;
+      border: 2px solid var(--border-slot);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      transform: translate(-50%, -50%);
+      text-align: center;
+      border-radius: 3px;
+    }
+    .tree-node.target { border-color: var(--accent-green); }
+    .tree-node.error { border-color: var(--accent-red); }
+    .tree-node.enchanted { border-color: var(--accent-purple); background: #1c122b; }
+    .tree-node h4 { font-size: 0.8rem; margin-bottom: 0.2rem; }
+    .tree-node span { font-size: 0.7rem; color: var(--text-muted); }
+
+    .status-banner {
+      margin: 0.5rem 0;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 3px;
+    }
+    .status-banner.error { background: #ef444422; border: 1px solid var(--accent-red); color: var(--accent-red); }
+    .status-banner.success { background: #22c55e22; border: 1px solid var(--accent-green); color: var(--accent-green); }
+    .hidden { display: none !important; }
+
+    .recipe-container {
+      background: #0c121b;
+      border: 1px solid var(--border-slot);
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+      border-radius: 4px;
+    }
+    .recipe-container h3 {
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+    .recipe-steps { list-style-position: inside; display: flex; flex-direction: column; gap: 0.4rem; }
+    .recipe-steps li {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      padding: 0.4rem 0.6rem;
+      background: #111827;
+      border-left: 3px solid var(--accent-cyan);
+    }
+    .recipe-steps li strong { color: #fff; }
+    .recipe-steps li span { color: var(--accent-purple); font-weight: 700; }
+
+    /* Progresión */
+    .progression-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: calc(100vh - 110px);
+    }
+    .progression-sidebar {
+      background: var(--panel-bg);
+      border-right: 2px solid var(--border-slot);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .milestone-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .milestone-btn {
+      text-align: left;
+      background: #0b1017;
+      border: 1px solid var(--border-slot);
+      color: var(--text-main);
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .milestone-btn:hover { border-color: #38bdf888; }
+    .milestone-btn.active {
+      border-color: var(--accent-cyan);
+      background: #112838;
+      color: #fff;
+      border-left: 4px solid var(--accent-cyan);
+    }
+    .survival-tip {
+      margin-top: auto;
+      padding: 0.85rem;
+      background: #1c1917;
+      border-left: 3px solid #eab308;
+      font-size: 0.75rem;
+      color: #fef08a;
+      line-height: 1.4;
+      border-radius: 3px;
+    }
+    .progression-content {
+      padding: 2rem;
+      background: radial-gradient(circle at 60% 20%, #151d2a 0%, #070a0e 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-slot);
+      padding-bottom: 1rem;
+    }
+    .stage-badge {
+      background: #22c55e20;
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 3px;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .prog-card {
+      background: #0b1017;
+      border: 1px solid var(--border-slot);
+      padding: 1.2rem;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .prog-card .card-step {
+      font-size: 0.7rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .prog-card h3 { font-size: 0.95rem; }
+    .prog-card p { font-size: 0.8rem; color: #94a3b8; line-height: 1.4; }
+    .recipe-calc-box {
+      background: #101722;
+      border: 1px solid var(--border-slot);
+      padding: 1rem 1.25rem;
+      border-radius: 4px;
+    }
+    .recipe-calc-box h3 { font-size: 0.85rem; color: var(--accent-cyan); margin-bottom: 0.4rem; }
+    .recipe-calc-box p { font-size: 0.85rem; }
+
+    .app-footer {
+      text-align: center;
+      padding: 0.6rem;
+      font-size: 0.65rem;
+      color: #475569;
+      border-top: 1px solid var(--border-slot);
+      background: var(--bg-dark);
+    }
+  </style>
 </head>
 <body>
 
@@ -15,11 +360,9 @@
       <div class="logo">Craft<span>chemy</span></div>
       <span class="badge">Suite v1.3</span>
     </div>
-
-    <!-- Navegación por pestañas -->
     <nav class="nav-tabs">
       <button class="tab-btn active" data-tab="anvilView">🔨 Anvil Solver</button>
-      <button class="tab-btn" data-tab="progressionView">🪵 Primeras Horas (Progresión)</button>
+      <button class="tab-btn" data-tab="progressionView">🪵 Primeras Horas</button>
     </nav>
   </header>
 
@@ -28,15 +371,15 @@
     <div class="main-container">
       <aside class="sidebar">
         <h2>1. Selecciona Objeto</h2>
-        <div class="item-grid" id="itemSelector">
-          <button class="item-btn active" data-item="sword"><span class="pixel-icon">🗡️</span> Espada</button>
-          <button class="item-btn" data-item="pickaxe"><span class="pixel-icon">⛏️</span> Pico</button>
-          <button class="item-btn" data-item="boots"><span class="pixel-icon">🥾</span> Botas</button>
-          <button class="item-btn" data-item="helmet"><span class="pixel-icon">🪖</span> Casco</button>
-          <button class="item-btn" data-item="chestplate"><span class="pixel-icon">🛡️</span> Pechera</button>
-          <button class="item-btn" data-item="bow"><span class="pixel-icon">🏹</span> Arco</button>
-          <button class="item-btn" data-item="crossbow"><span class="pixel-icon">🎯</span> Ballesta</button>
-          <button class="item-btn" data-item="trident"><span class="pixel-icon">🔱</span> Tridente</button>
+        <div class="item-grid">
+          <button class="item-btn active" data-item="sword">🗡️ Espada</button>
+          <button class="item-btn" data-item="pickaxe">⛏️ Pico</button>
+          <button class="item-btn" data-item="boots">🥾 Botas</button>
+          <button class="item-btn" data-item="helmet">🪖 Casco</button>
+          <button class="item-btn" data-item="chestplate">🛡️ Pechera</button>
+          <button class="item-btn" data-item="bow">🏹 Arco</button>
+          <button class="item-btn" data-item="crossbow">🎯 Ballesta</button>
+          <button class="item-btn" data-item="trident">🔱 Tridente</button>
         </div>
 
         <h2>2. Añade Encantamientos</h2>
@@ -66,39 +409,30 @@
     </div>
   </main>
 
-  <!-- VISTA 2: PRIMERAS HORAS & PROGRESIÓN -->
+  <!-- VISTA 2: PROGRESIÓN -->
   <main id="progressionView" class="tab-content">
     <div class="progression-container">
       <div class="progression-sidebar">
-        <h2>Meta Actual</h2>
-        <p class="section-desc">Selecciona tu siguiente hito de supervivencia:</p>
-        
+        <h2 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Meta Actual</h2>
         <div class="milestone-list">
-          <button class="milestone-btn active" data-stage="wood">🪵 1. Primer Tronco (Minuto 1)</button>
-          <button class="milestone-btn" data-stage="stone">🪨 2. Era de Piedra (Minuto 3)</button>
-          <button class="milestone-btn" data-stage="night">🔥 3. Refugio y Horno (Minuto 7)</button>
-          <button class="milestone-btn" data-stage="iron">🛡️ 4. Armadura y Hierro (Día 2)</button>
+          <button class="milestone-btn active" data-stage="wood">🪵 1. Primer Tronco (Min 1)</button>
+          <button class="milestone-btn" data-stage="stone">🪨 2. Era de Piedra (Min 3)</button>
+          <button class="milestone-btn" data-stage="night">🔥 3. Refugio y Horno (Min 7)</button>
+          <button class="milestone-btn" data-stage="iron">🛡️ 4. Hierro y Escudo (Día 2)</button>
           <button class="milestone-btn" data-stage="diamond">💎 5. Profundidades y Diamante</button>
         </div>
-
-        <div class="survival-tip" id="survivalTip">
-          <strong>Regla de Oro:</strong> Rompe solo la madera necesaria para un pico de madera. Mina 3 de piedra y salta directo al pico de piedra; no fabriques herramientas de madera de más.
-        </div>
+        <div class="survival-tip" id="survivalTip"></div>
       </div>
 
       <div class="progression-content">
         <div class="stage-header">
-          <h2 id="stageTitle">Fase 1: El Despertar con un Tronco de Roble</h2>
-          <span class="stage-badge" id="stageBadge">Supervivencia Básica</span>
+          <h2 id="stageTitle">Fase 1</h2>
+          <span class="stage-badge" id="stageBadge">Minuto 0 - 2</span>
         </div>
-
-        <div class="steps-grid" id="stageSteps">
-          <!-- Renderizado dinámico de pasos e ingredientes requeridos -->
-        </div>
-
+        <div class="steps-grid" id="stageSteps"></div>
         <div class="recipe-calc-box">
           <h3>Calculadora Exacta de Materia Prima</h3>
-          <p id="resourceBreakdown">Para completar esta fase necesitas: <strong>3 troncos de roble</strong>.</p>
+          <p id="resourceBreakdown"></p>
         </div>
       </div>
     </div>
@@ -108,6 +442,345 @@
     <p>NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    const ENCHANTMENTS_DATA = {
+      sword: [
+        { id: "sharpness", name: "Filo V", level: 5, weight: 1, conflicts: ["smite", "bane_of_arthropods"] },
+        { id: "smite", name: "Golpeo V", level: 5, weight: 1, conflicts: ["sharpness", "bane_of_arthropods"] },
+        { id: "bane_of_arthropods", name: "Perdición Artrópodos V", level: 5, weight: 1, conflicts: ["sharpness", "smite"] },
+        { id: "looting", name: "Botín III", level: 3, weight: 2 },
+        { id: "fire_aspect", name: "Aspecto Ígneo II", level: 2, weight: 2 },
+        { id: "sweeping_edge", name: "Filo Arrasador III", level: 3, weight: 2 },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+      ],
+      pickaxe: [
+        { id: "efficiency", name: "Eficiencia V", level: 5, weight: 1 },
+        { id: "fortune", name: "Fortuna III", level: 3, weight: 2, conflicts: ["silk_touch"] },
+        { id: "silk_touch", name: "Toque de Seda", level: 1, weight: 4, conflicts: ["fortune"] },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+      ],
+      boots: [
+        { id: "protection", name: "Protección IV", level: 4, weight: 1 },
+        { id: "feather_falling", name: "Caída de Pluma IV", level: 4, weight: 1 },
+        { id: "depth_strider", name: "Agilidad Acuática III", level: 3, weight: 2, conflicts: ["frost_walker"] },
+        { id: "soul_speed", name: "Velocidad de Almas III", level: 3, weight: 4 },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+      ],
+      helmet: [
+        { id: "protection", name: "Protección IV", level: 4, weight: 1 },
+        { id: "respiration", name: "Respiración III", level: 3, weight: 2 },
+        { id: "aqua_affinity", name: "Afinidad Acuática", level: 1, weight: 2 },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+      ],
+      chestplate: [
+        { id: "protection", name: "Protección IV", level: 4, weight: 1 },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2 },
+        { id: "thorns", name: "Espinas III", level: 3, weight: 4 }
+      ],
+      bow: [
+        { id: "power", name: "Poder V", level: 5, weight: 1 },
+        { id: "flame", name: "Fuego", level: 1, weight: 2 },
+        { id: "punch", name: "Retroceso II", level: 2, weight: 2 },
+        { id: "infinity", name: "Infinidad", level: 1, weight: 4, conflicts: ["mending"] },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2, conflicts: ["infinity"] }
+      ],
+      crossbow: [
+        { id: "quick_charge", name: "Carga Rápida III", level: 3, weight: 1 },
+        { id: "multishot", name: "Multidisparo", level: 1, weight: 2, conflicts: ["piercing"] },
+        { id: "piercing", name: "Perforación IV", level: 4, weight: 1, conflicts: ["multishot"] },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+      ],
+      trident: [
+        { id: "impaling", name: "Empalamiento V", level: 5, weight: 1 },
+        { id: "loyalty", name: "Lealtad III", level: 3, weight: 1, conflicts: ["riptide"] },
+        { id: "channeling", name: "Conductividad", level: 1, weight: 4, conflicts: ["riptide"] },
+        { id: "riptide", name: "Propulsión Acuática III", level: 3, weight: 2, conflicts: ["loyalty", "channeling"] },
+        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+      ]
+    };
+
+    const PROGRESSION_DATA = {
+      wood: {
+        title: "Fase 1: El Despertar con un Tronco de Roble",
+        badge: "Minuto 0 - 2",
+        tip: "Solo fabrica 1 pico de madera. Mina 3 de piedra y salta directo a herramientas de piedra.",
+        breakdown: "Talar: <strong>3 troncos de roble</strong> (producen 12 tablones).",
+        steps: [
+          { step: "Paso 1", title: "Procesar Madera", desc: "Pon los troncos en la cuadrícula de fabricación para conseguir 12 tablones de roble." },
+          { step: "Paso 2", title: "Mesa de Trabajo", desc: "Usa 4 tablones para craftear tu Mesa de Trabajo y colócala en el suelo." },
+          { step: "Paso 3", title: "Palos y Pico", desc: "Haz 4 palos (2 tablones) y fabrica EXCLUSIVAMENTE 1 Pico de Madera (3 tablones + 2 palos)." }
+        ]
+      },
+      stone: {
+        title: "Fase 2: La Era de Piedra Inmediata",
+        badge: "Minuto 3 - 5",
+        tip: "Pica 3 de piedra, haz el pico de piedra y no gastes más el de madera.",
+        breakdown: "Extracción requerida: <strong>14 a 20 bloques de adoquín (Cobblestone)</strong>.",
+        steps: [
+          { step: "Paso 1", title: "Primeros 3 Adoquines", desc: "Cava hacia abajo o entra a una ladera. Pica 3 piedras y haz tu Pico de Piedra." },
+          { step: "Paso 2", title: "Kit de Piedra", desc: "Mina 11 bloques más: haz 1 Espada de Piedra, 1 Hacha de Piedra y 1 Horno." },
+          { step: "Paso 3", title: "Tala Rápida", desc: "Con la nueva hacha de piedra tala 15-20 troncos en cuestión de segundos." }
+        ]
+      },
+      night: {
+        title: "Fase 3: Refugio, Carbón y Primera Noche",
+        badge: "Minuto 6 - 9",
+        tip: "Si no hallas carbón mineral, cocina troncos sin procesar en el horno para sacar carbón vegetal.",
+        breakdown: "Kit de noche: <strong>1 Cama (o cueva 3x3), 1 Horno activo, 4 Antorchas</strong>.",
+        steps: [
+          { step: "Paso 1", title: "Carbón Vegetal", desc: "Mete troncos arriba en el horno y tablones abajo para cocinar carbón vegetal." },
+          { step: "Paso 2", title: "Iluminación", desc: "Junta 1 carbón con 1 palo para crear 4 antorchas y evitar spawns de creepers." },
+          { step: "Paso 3", title: "Dormir o Cavar", desc: "Si tienes 3 de lana de oveja haz una cama. Si no, cava un agujero 3x3 y tápate." }
+        ]
+      },
+      iron: {
+        title: "Fase 4: La Fiebre del Hierro",
+        badge: "Día 2",
+        tip: "El escudo cuesta solo 1 de hierro y 6 maderas y bloquea el 100% de explosiones y flechas.",
+        breakdown: "Meta mínima: <strong>24 lingotes de hierro</strong> (armadura completa + escudo + cubo de agua).",
+        steps: [
+          { step: "Paso 1", title: "El Escudo (Prioridad 1)", desc: "1 lingote de hierro + 6 tablones. Bloquea flechas y daño crítico." },
+          { step: "Paso 2", title: "Cubo de Agua", desc: "3 lingotes de hierro. Te salva de caídas (MLG clutch) y convierte lava en obsidiana." },
+          { step: "Paso 3", title: "Armadura de Hierro", desc: "Equípate antes de descender a cavernas profundas." }
+        ]
+      },
+      diamond: {
+        title: "Fase 5: Profundidades y Diamante",
+        badge: "Juego Medio",
+        tip: "La capa más óptima para diamantes en versiones modernas es Y: -58. Requiere pico de hierro.",
+        breakdown: "Meta inicial: <strong>5 diamantes</strong> (3 para Pico de Diamante + 2 para Mesa de Encantamientos).",
+        steps: [
+          { step: "Paso 1", title: "Descenso a Deepslate", desc: "Baja entre Y: -53 e Y: -58 iluminando siempre tu camino de vuelta." },
+          { step: "Paso 2", title: "Picado Seguro", desc: "Cava alrededor del diamante para verificar que no caiga a la lava." },
+          { step: "Paso 3", title: "Hacia el Anvil Solver", desc: "Con diamantes y obsidiana comienzas el proceso del yunque de Craftchemy." }
+        ]
+      }
+    };
+
+    let currentItem = "sword";
+    let selectedEnchants = [];
+
+    function renderEnchants() {
+      const list = document.getElementById("enchantList");
+      list.innerHTML = "";
+      ENCHANTMENTS_DATA[currentItem].forEach(enc => {
+        const isSel = selectedEnchants.some(e => e.id === enc.id);
+        const div = document.createElement("div");
+        div.className = `enchant-item ${isSel ? "selected" : ""}`;
+        div.innerHTML = `<span>${enc.name}</span><span style="color:var(--text-muted);font-size:0.7rem;">${enc.level * enc.weight} niv</span>`;
+        div.onclick = () => {
+          const idx = selectedEnchants.findIndex(e => e.id === enc.id);
+          if (idx > -1) {
+            selectedEnchants.splice(idx, 1);
+          } else {
+            if (enc.conflicts) selectedEnchants = selectedEnchants.filter(e => !enc.conflicts.includes(e.id));
+            selectedEnchants.push(enc);
+          }
+          renderEnchants();
+        };
+        list.appendChild(div);
+      });
+    }
+
+    function setupEvents() {
+      // Pestañas
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById(btn.dataset.tab).classList.add("active");
+        };
+      });
+
+      // Ítems
+      document.querySelectorAll(".item-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          document.querySelectorAll(".item-btn").forEach(b => b.classList.remove("active"));
+          e.currentTarget.classList.add("active");
+          currentItem = e.currentTarget.dataset.item;
+          selectedEnchants = [];
+          renderEnchants();
+          clearTree();
+        };
+      });
+
+      // Milestones de progresión
+      document.querySelectorAll(".milestone-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          document.querySelectorAll(".milestone-btn").forEach(b => b.classList.remove("active"));
+          e.currentTarget.classList.add("active");
+          renderProgression(e.currentTarget.dataset.stage);
+        };
+      });
+
+      document.getElementById("optimizeBtn").onclick = optimizeTree;
+      document.getElementById("resetBtn").onclick = clearTree;
+    }
+
+    class AnvilNode {
+      constructor(name, cost = 0, priorPenalty = 0, isTarget = false, isBook = true, left = null, right = null) {
+        this.name = name;
+        this.cost = cost;
+        this.priorPenalty = priorPenalty;
+        this.isTarget = isTarget;
+        this.isBook = isBook;
+        this.left = left;
+        this.right = right;
+        this.x = 0;
+        this.y = 0;
+      }
+    }
+
+    function optimizeTree() {
+      if (selectedEnchants.length === 0) return;
+      clearTree();
+
+      const leaves = selectedEnchants.map(enc => new AnvilNode(enc.name, enc.level * enc.weight, 0, false, true));
+      leaves.sort((a, b) => b.cost - a.cost);
+
+      const itemNames = { sword: "Espada", pickaxe: "Pico", boots: "Botas", helmet: "Casco", chestplate: "Pechera", bow: "Arco", crossbow: "Ballesta", trident: "Tridente" };
+      const baseItem = new AnvilNode(`${itemNames[currentItem]} Base`, 0, 0, false, false);
+
+      let pool = [...leaves];
+      let totalCost = 0;
+      let isTooExpensive = false;
+      const steps = [];
+
+      while (pool.length > 1) {
+        const a = pool.shift();
+        const b = pool.shift();
+        const penalty = (Math.pow(2, a.priorPenalty) - 1) + (Math.pow(2, b.priorPenalty) - 1);
+        const cost = b.cost + penalty;
+        totalCost += cost;
+        if (cost > 39) isTooExpensive = true;
+
+        steps.push({ left: a.name, right: b.name, cost: cost });
+        pool.push(new AnvilNode(`Libro Combinado`, cost, Math.max(a.priorPenalty, b.priorPenalty) + 1, false, true, a, b));
+      }
+
+      const finalBook = pool[0];
+      const finalPenalty = (Math.pow(2, baseItem.priorPenalty) - 1) + (Math.pow(2, finalBook.priorPenalty) - 1);
+      const finalCost = finalBook.cost + finalPenalty;
+      totalCost += finalCost;
+      if (finalCost > 39) isTooExpensive = true;
+
+      steps.push({ left: baseItem.name, right: finalBook.name, cost: finalCost });
+
+      const root = new AnvilNode(`${itemNames[currentItem]} Perfecta`, finalCost, Math.max(baseItem.priorPenalty, finalBook.priorPenalty) + 1, true, false, baseItem, finalBook);
+
+      renderTree(root);
+      renderSteps(steps);
+
+      const banner = document.getElementById("statusBanner");
+      banner.classList.remove("hidden", "error", "success");
+      if (isTooExpensive) {
+        banner.classList.add("error");
+        banner.textContent = "✕ ¡DEMASIADO CARO! Un paso supera los 39 niveles";
+      } else {
+        banner.classList.add("success");
+        banner.textContent = "✓ ¡RUTA ÓPTIMA GARANTIZADA!";
+      }
+      document.getElementById("costIndicator").textContent = `Coste Total: ${totalCost} niveles`;
+    }
+
+    function renderTree(root) {
+      const container = document.getElementById("nodesLayer");
+      const svg = document.getElementById("svgOverlay");
+      let currentY = 40;
+
+      function layout(node, depth) {
+        if (!node.left && !node.right) {
+          node.x = 120;
+          node.y = currentY;
+          currentY += 70;
+          return;
+        }
+        if (node.left) layout(node.left, depth + 1);
+        if (node.right) layout(node.right, depth + 1);
+        node.x = 120 + (depth * 220);
+        node.y = ((node.left ? node.left.y : currentY) + (node.right ? node.right.y : currentY)) / 2;
+      }
+      layout(root, 1);
+      document.getElementById("treeContainer").style.minHeight = `${Math.max(currentY + 20, 420)}px`;
+
+      function draw(node) {
+        if (!node) return;
+        const el = document.createElement("div");
+        el.className = `tree-node ${node.isTarget ? "target" : ""} ${node.cost > 39 ? "error" : ""} ${node.isBook ? "enchanted" : ""}`;
+        el.style.left = `${node.x}px`;
+        el.style.top = `${node.y}px`;
+        el.innerHTML = `<h4>${node.name}</h4><span>${node.cost > 0 ? `Coste: ${node.cost} niv` : "Base"}</span>`;
+        container.appendChild(el);
+
+        if (node.left) { drawConn(node.left, node, svg); draw(node.left); }
+        if (node.right) { drawConn(node.right, node, svg); draw(node.right); }
+      }
+      draw(root);
+    }
+
+    function drawConn(src, dest, svg) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const dx = (dest.x - src.x) * 0.5;
+      path.setAttribute("d", `M ${src.x} ${src.y} C ${src.x + dx} ${src.y}, ${dest.x - dx} ${dest.y}, ${dest.x} ${dest.y}`);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", dest.cost > 39 ? "#f87171" : "#38bdf8");
+      path.setAttribute("stroke-width", "2");
+      path.setAttribute("stroke-dasharray", "4,4");
+      svg.appendChild(path);
+      if (window.gsap) gsap.fromTo(path, { strokeDashoffset: 60, opacity: 0 }, { strokeDashoffset: 0, opacity: 1, duration: 0.6 });
+    }
+
+    function renderSteps(steps) {
+      const box = document.getElementById("recipeBox");
+      const list = document.getElementById("recipeSteps");
+      list.innerHTML = "";
+      steps.forEach((s, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `Paso ${i + 1}: Pon <strong>${s.left}</strong> a la izquierda y <strong>${s.right}</strong> a la derecha ➔ Gasto: <span>${s.cost} niveles</span>`;
+        list.appendChild(li);
+      });
+      box.classList.remove("hidden");
+    }
+
+    function renderProgression(stageKey) {
+      const data = PROGRESSION_DATA[stageKey];
+      document.getElementById("stageTitle").textContent = data.title;
+      document.getElementById("stageBadge").textContent = data.badge;
+      document.getElementById("survivalTip").innerHTML = `<strong>Consejo:</strong> ${data.tip}`;
+      document.getElementById("resourceBreakdown").innerHTML = data.breakdown;
+
+      const grid = document.getElementById("stageSteps");
+      grid.innerHTML = "";
+      data.steps.forEach(st => {
+        const card = document.createElement("div");
+        card.className = "prog-card";
+        card.innerHTML = `<span class="card-step">${st.step}</span><h3>${st.title}</h3><p>${st.desc}</p>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function clearTree() {
+      document.getElementById("nodesLayer").innerHTML = "";
+      document.getElementById("svgOverlay").innerHTML = "";
+      document.getElementById("statusBanner").classList.add("hidden");
+      document.getElementById("recipeBox").classList.add("hidden");
+      document.getElementById("costIndicator").textContent = "Coste Total: -- niveles";
+    }
+
+    window.onload = () => {
+      setupEvents();
+      renderEnchants();
+      renderProgression("wood");
+    };
+  </script>
 </body>
 </html>
