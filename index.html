@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Craftchemy | Suite de Alquimia y Utilidades de Minecraft</title>
-  <meta name="description" content="Herramientas interactivas: optimizador de yunque y árbol de progresión para Minecraft.">
+  <title>Craftchemy | Minecraft Anvil Solver & Progression Alchemy</title>
+  <meta name="description" content="Optimal Minecraft anvil order calculator and early progression guide. Avoid 'Too Expensive' errors.">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <style>
     :root {
@@ -30,7 +30,7 @@
       flex-direction: column;
     }
 
-    /* Header y Pestañas */
+    /* Header y Controles */
     .app-header {
       display: flex;
       justify-content: space-between;
@@ -51,6 +51,12 @@
       padding: 0.2rem 0.5rem;
       font-size: 0.7rem;
       border-radius: 3px;
+    }
+    
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
     .nav-tabs { display: flex; gap: 0.5rem; }
     .tab-btn {
@@ -73,7 +79,28 @@
       box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
     }
 
-    /* Pestañas */
+    /* Selector de Idioma */
+    .lang-switch {
+      display: flex;
+      border: 1px solid var(--border-slot);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .lang-btn {
+      background: #0b1017;
+      color: var(--text-muted);
+      border: none;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .lang-btn.active {
+      background: var(--accent-cyan);
+      color: #050b14;
+    }
+
     .tab-content { display: none; flex: 1; }
     .tab-content.active { display: block; }
 
@@ -194,7 +221,7 @@
 
     .tree-node {
       position: absolute;
-      min-width: 155px;
+      min-width: 160px;
       padding: 0.6rem 0.8rem;
       background: #0f1520;
       border: 2px solid var(--border-slot);
@@ -358,40 +385,47 @@
   <header class="app-header">
     <div class="header-brand">
       <div class="logo">Craft<span>chemy</span></div>
-      <span class="badge">Suite v1.3</span>
+      <span class="badge">Suite v1.4</span>
     </div>
-    <nav class="nav-tabs">
-      <button class="tab-btn active" data-tab="anvilView">🔨 Anvil Solver</button>
-      <button class="tab-btn" data-tab="progressionView">🪵 Primeras Horas</button>
-    </nav>
+
+    <div class="header-controls">
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="anvilView" id="tabAnvil">🔨 Anvil Solver</button>
+        <button class="tab-btn" data-tab="progressionView" id="tabProgression">🪵 Early Game</button>
+      </nav>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+      </div>
+    </div>
   </header>
 
   <!-- VISTA 1: ANVIL SOLVER -->
   <main id="anvilView" class="tab-content active">
     <div class="main-container">
       <aside class="sidebar">
-        <h2>1. Selecciona Objeto</h2>
+        <h2 id="lblSelectObject">1. Select Item</h2>
         <div class="item-grid">
-          <button class="item-btn active" data-item="sword">🗡️ Espada</button>
-          <button class="item-btn" data-item="pickaxe">⛏️ Pico</button>
-          <button class="item-btn" data-item="boots">🥾 Botas</button>
-          <button class="item-btn" data-item="helmet">🪖 Casco</button>
-          <button class="item-btn" data-item="chestplate">🛡️ Pechera</button>
-          <button class="item-btn" data-item="bow">🏹 Arco</button>
-          <button class="item-btn" data-item="crossbow">🎯 Ballesta</button>
-          <button class="item-btn" data-item="trident">🔱 Tridente</button>
+          <button class="item-btn active" data-item="sword">🗡️ <span class="it-name">Sword</span></button>
+          <button class="item-btn" data-item="pickaxe">⛏️ <span class="it-name">Pickaxe</span></button>
+          <button class="item-btn" data-item="boots">🥾 <span class="it-name">Boots</span></button>
+          <button class="item-btn" data-item="helmet">🪖 <span class="it-name">Helmet</span></button>
+          <button class="item-btn" data-item="chestplate">🛡️ <span class="it-name">Chestplate</span></button>
+          <button class="item-btn" data-item="bow">🏹 <span class="it-name">Bow</span></button>
+          <button class="item-btn" data-item="crossbow">🎯 <span class="it-name">Crossbow</span></button>
+          <button class="item-btn" data-item="trident">🔱 <span class="it-name">Trident</span></button>
         </div>
 
-        <h2>2. Añade Encantamientos</h2>
+        <h2 id="lblAddEnchants">2. Add Enchantments</h2>
         <div class="enchant-list" id="enchantList"></div>
         
-        <button id="optimizeBtn" class="btn-primary">Optimizar Combinación</button>
+        <button id="optimizeBtn" class="btn-primary">Calculate Optimal Path</button>
       </aside>
 
       <section class="canvas-area">
         <div class="canvas-header">
-          <span id="costIndicator" class="cost-pill">Coste Total: -- niveles</span>
-          <button id="resetBtn" class="btn-secondary">Reiniciar</button>
+          <span id="costIndicator" class="cost-pill">Total Cost: -- levels</span>
+          <button id="resetBtn" class="btn-secondary">Reset</button>
         </div>
 
         <div class="tree-wrapper" id="treeContainer">
@@ -402,7 +436,7 @@
         <div id="statusBanner" class="status-banner hidden"></div>
 
         <section class="recipe-container hidden" id="recipeBox">
-          <h3>Instrucciones para el Yunque</h3>
+          <h3 id="lblRecipeTitle">Anvil Instructions</h3>
           <ol id="recipeSteps" class="recipe-steps"></ol>
         </section>
       </section>
@@ -412,29 +446,29 @@
   <!-- VISTA 2: PROGRESIÓN -->
   <main id="progressionView" class="tab-content">
     <div class="progression-container">
-      <div class="progression-sidebar">
-        <h2 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Meta Actual</h2>
+      <aside class="progression-sidebar">
+        <h2 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;" id="lblMilestones">Milestones</h2>
         <div class="milestone-list">
-          <button class="milestone-btn active" data-stage="wood">🪵 1. Primer Tronco (Min 1)</button>
-          <button class="milestone-btn" data-stage="stone">🪨 2. Era de Piedra (Min 3)</button>
-          <button class="milestone-btn" data-stage="night">🔥 3. Refugio y Horno (Min 7)</button>
-          <button class="milestone-btn" data-stage="iron">🛡️ 4. Hierro y Escudo (Día 2)</button>
-          <button class="milestone-btn" data-stage="diamond">💎 5. Profundidades y Diamante</button>
+          <button class="milestone-btn active" data-stage="wood" id="msWood">🪵 1. First Log (Min 1)</button>
+          <button class="milestone-btn" data-stage="stone" id="msStone">🪨 2. Stone Age (Min 3)</button>
+          <button class="milestone-btn" data-stage="night" id="msNight">🔥 3. Shelter & Charcoal (Min 7)</button>
+          <button class="milestone-btn" data-stage="iron" id="msIron">🛡️ 4. Iron & Shield (Day 2)</button>
+          <button class="milestone-btn" data-stage="diamond" id="msDiamond">💎 5. Deepslate & Diamond</button>
         </div>
         <div class="survival-tip" id="survivalTip"></div>
-      </div>
+      </aside>
 
-      <div class="progression-content">
+      <section class="progression-content">
         <div class="stage-header">
-          <h2 id="stageTitle">Fase 1</h2>
-          <span class="stage-badge" id="stageBadge">Minuto 0 - 2</span>
+          <h2 id="stageTitle">Phase 1</h2>
+          <span class="stage-badge" id="stageBadge">Min 0 - 2</span>
         </div>
         <div class="steps-grid" id="stageSteps"></div>
         <div class="recipe-calc-box">
-          <h3>Calculadora Exacta de Materia Prima</h3>
+          <h3 id="lblRawMaterials">Raw Material Calculator</h3>
           <p id="resourceBreakdown"></p>
         </div>
-      </div>
+      </section>
     </div>
   </main>
 
@@ -443,139 +477,307 @@
   </footer>
 
   <script>
+    let currentLang = (navigator.language && navigator.language.startsWith("es")) ? "es" : "en";
+
+    const UI_TRANSLATIONS = {
+      en: {
+        tabAnvil: "🔨 Anvil Solver",
+        tabProgression: "🪵 Early Game",
+        lblSelectObject: "1. Select Item",
+        lblAddEnchants: "2. Add Enchantments",
+        optimizeBtn: "Calculate Optimal Path",
+        costDefault: "Total Cost: -- levels",
+        costPrefix: "Total Cost: ",
+        levels: " levels",
+        lvlShort: " lvls",
+        resetBtn: "Reset",
+        lblRecipeTitle: "Anvil Instructions",
+        stepPrefix: "Step",
+        stepPlace: "Place",
+        stepLeft: "on left and",
+        stepRight: "on right",
+        stepCost: "Cost",
+        perfectSuffix: "Perfect",
+        baseSuffix: "Base",
+        mergedBook: "Merged Book",
+        errTooExpensive: "✕ TOO EXPENSIVE! Step exceeds 39 levels limit",
+        succOptimal: "✓ OPTIMAL ROUTE CONFIRMED! No excessive penalties",
+        lblMilestones: "Milestones",
+        lblRawMaterials: "Raw Material Calculator",
+        proTip: "Pro Tip:",
+        items: {
+          sword: "Sword", pickaxe: "Pickaxe", boots: "Boots", helmet: "Helmet",
+          chestplate: "Chestplate", bow: "Bow", crossbow: "Crossbow", trident: "Trident"
+        }
+      },
+      es: {
+        tabAnvil: "🔨 Optimizador Yunque",
+        tabProgression: "🪵 Primeras Horas",
+        lblSelectObject: "1. Selecciona Objeto",
+        lblAddEnchants: "2. Añade Encantamientos",
+        optimizeBtn: "Calcular Ruta Óptima",
+        costDefault: "Coste Total: -- niveles",
+        costPrefix: "Coste Total: ",
+        levels: " niveles",
+        lvlShort: " niv",
+        resetBtn: "Reiniciar",
+        lblRecipeTitle: "Instrucciones para el Yunque",
+        stepPrefix: "Paso",
+        stepPlace: "Pon",
+        stepLeft: "a la izquierda y",
+        stepRight: "a la derecha",
+        stepCost: "Gasto",
+        perfectSuffix: "Perfecta",
+        baseSuffix: "Base",
+        mergedBook: "Libro Combinado",
+        errTooExpensive: "✕ ¡DEMASIADO CARO! Un paso supera el límite de 39 niveles",
+        succOptimal: "✓ ¡RUTA ÓPTIMA GARANTIZADA! Sin penalización excesiva",
+        lblMilestones: "Metas de Supervivencia",
+        lblRawMaterials: "Calculadora de Materia Prima",
+        proTip: "Consejo Pro:",
+        items: {
+          sword: "Espada", pickaxe: "Pico", boots: "Botas", helmet: "Casco",
+          chestplate: "Pechera", bow: "Arco", crossbow: "Ballesta", trident: "Tridente"
+        }
+      }
+    };
+
     const ENCHANTMENTS_DATA = {
       sword: [
-        { id: "sharpness", name: "Filo V", level: 5, weight: 1, conflicts: ["smite", "bane_of_arthropods"] },
-        { id: "smite", name: "Golpeo V", level: 5, weight: 1, conflicts: ["sharpness", "bane_of_arthropods"] },
-        { id: "bane_of_arthropods", name: "Perdición Artrópodos V", level: 5, weight: 1, conflicts: ["sharpness", "smite"] },
-        { id: "looting", name: "Botín III", level: 3, weight: 2 },
-        { id: "fire_aspect", name: "Aspecto Ígneo II", level: 2, weight: 2 },
-        { id: "sweeping_edge", name: "Filo Arrasador III", level: 3, weight: 2 },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+        { id: "sharpness", nameEn: "Sharpness V", nameEs: "Filo V", level: 5, weight: 1, conflicts: ["smite", "bane_of_arthropods"] },
+        { id: "smite", nameEn: "Smite V", nameEs: "Golpeo V", level: 5, weight: 1, conflicts: ["sharpness", "bane_of_arthropods"] },
+        { id: "bane_of_arthropods", nameEn: "Bane of Arthropods V", nameEs: "Perdición Artrópodos V", level: 5, weight: 1, conflicts: ["sharpness", "smite"] },
+        { id: "looting", nameEn: "Looting III", nameEs: "Botín III", level: 3, weight: 2 },
+        { id: "fire_aspect", nameEn: "Fire Aspect II", nameEs: "Aspecto Ígneo II", level: 2, weight: 2 },
+        { id: "sweeping_edge", nameEn: "Sweeping Edge III", nameEs: "Filo Arrasador III", level: 3, weight: 2 },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2 }
       ],
       pickaxe: [
-        { id: "efficiency", name: "Eficiencia V", level: 5, weight: 1 },
-        { id: "fortune", name: "Fortuna III", level: 3, weight: 2, conflicts: ["silk_touch"] },
-        { id: "silk_touch", name: "Toque de Seda", level: 1, weight: 4, conflicts: ["fortune"] },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+        { id: "efficiency", nameEn: "Efficiency V", nameEs: "Eficiencia V", level: 5, weight: 1 },
+        { id: "fortune", nameEn: "Fortune III", nameEs: "Fortuna III", level: 3, weight: 2, conflicts: ["silk_touch"] },
+        { id: "silk_touch", nameEn: "Silk Touch", nameEs: "Toque de Seda", level: 1, weight: 4, conflicts: ["fortune"] },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2 }
       ],
       boots: [
-        { id: "protection", name: "Protección IV", level: 4, weight: 1 },
-        { id: "feather_falling", name: "Caída de Pluma IV", level: 4, weight: 1 },
-        { id: "depth_strider", name: "Agilidad Acuática III", level: 3, weight: 2, conflicts: ["frost_walker"] },
-        { id: "soul_speed", name: "Velocidad de Almas III", level: 3, weight: 4 },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+        { id: "protection", nameEn: "Protection IV", nameEs: "Protección IV", level: 4, weight: 1 },
+        { id: "feather_falling", nameEn: "Feather Falling IV", nameEs: "Caída de Pluma IV", level: 4, weight: 1 },
+        { id: "depth_strider", nameEn: "Depth Strider III", nameEs: "Agilidad Acuática III", level: 3, weight: 2, conflicts: ["frost_walker"] },
+        { id: "soul_speed", nameEn: "Soul Speed III", nameEs: "Velocidad de Almas III", level: 3, weight: 4 },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2 }
       ],
       helmet: [
-        { id: "protection", name: "Protección IV", level: 4, weight: 1 },
-        { id: "respiration", name: "Respiración III", level: 3, weight: 2 },
-        { id: "aqua_affinity", name: "Afinidad Acuática", level: 1, weight: 2 },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+        { id: "protection", nameEn: "Protection IV", nameEs: "Protección IV", level: 4, weight: 1 },
+        { id: "respiration", nameEn: "Respiration III", nameEs: "Respiración III", level: 3, weight: 2 },
+        { id: "aqua_affinity", nameEn: "Aqua Affinity", nameEs: "Afinidad Acuática", level: 1, weight: 2 },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2 }
       ],
       chestplate: [
-        { id: "protection", name: "Protección IV", level: 4, weight: 1 },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2 },
-        { id: "thorns", name: "Espinas III", level: 3, weight: 4 }
+        { id: "protection", nameEn: "Protection IV", nameEs: "Protección IV", level: 4, weight: 1 },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2 },
+        { id: "thorns", nameEn: "Thorns III", nameEs: "Espinas III", level: 3, weight: 4 }
       ],
       bow: [
-        { id: "power", name: "Poder V", level: 5, weight: 1 },
-        { id: "flame", name: "Fuego", level: 1, weight: 2 },
-        { id: "punch", name: "Retroceso II", level: 2, weight: 2 },
-        { id: "infinity", name: "Infinidad", level: 1, weight: 4, conflicts: ["mending"] },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2, conflicts: ["infinity"] }
+        { id: "power", nameEn: "Power V", nameEs: "Poder V", level: 5, weight: 1 },
+        { id: "flame", nameEn: "Flame", nameEs: "Fuego", level: 1, weight: 2 },
+        { id: "punch", nameEn: "Punch II", nameEs: "Retroceso II", level: 2, weight: 2 },
+        { id: "infinity", nameEn: "Infinity", nameEs: "Infinidad", level: 1, weight: 4, conflicts: ["mending"] },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2, conflicts: ["infinity"] }
       ],
       crossbow: [
-        { id: "quick_charge", name: "Carga Rápida III", level: 3, weight: 1 },
-        { id: "multishot", name: "Multidisparo", level: 1, weight: 2, conflicts: ["piercing"] },
-        { id: "piercing", name: "Perforación IV", level: 4, weight: 1, conflicts: ["multishot"] },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+        { id: "quick_charge", nameEn: "Quick Charge III", nameEs: "Carga Rápida III", level: 3, weight: 1 },
+        { id: "multishot", nameEn: "Multishot", nameEs: "Multidisparo", level: 1, weight: 2, conflicts: ["piercing"] },
+        { id: "piercing", nameEn: "Piercing IV", nameEs: "Perforación IV", level: 4, weight: 1, conflicts: ["multishot"] },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2 }
       ],
       trident: [
-        { id: "impaling", name: "Empalamiento V", level: 5, weight: 1 },
-        { id: "loyalty", name: "Lealtad III", level: 3, weight: 1, conflicts: ["riptide"] },
-        { id: "channeling", name: "Conductividad", level: 1, weight: 4, conflicts: ["riptide"] },
-        { id: "riptide", name: "Propulsión Acuática III", level: 3, weight: 2, conflicts: ["loyalty", "channeling"] },
-        { id: "unbreaking", name: "Irrompibilidad III", level: 3, weight: 1 },
-        { id: "mending", name: "Reparación", level: 1, weight: 2 }
+        { id: "impaling", nameEn: "Impaling V", nameEs: "Empalamiento V", level: 5, weight: 1 },
+        { id: "loyalty", nameEn: "Loyalty III", nameEs: "Lealtad III", level: 3, weight: 1, conflicts: ["riptide"] },
+        { id: "channeling", nameEn: "Channeling", nameEs: "Conductividad", level: 1, weight: 4, conflicts: ["riptide"] },
+        { id: "riptide", nameEn: "Riptide III", nameEs: "Propulsión Acuática III", level: 3, weight: 2, conflicts: ["loyalty", "channeling"] },
+        { id: "unbreaking", nameEn: "Unbreaking III", nameEs: "Irrompibilidad III", level: 3, weight: 1 },
+        { id: "mending", nameEn: "Mending", nameEs: "Reparación", level: 1, weight: 2 }
       ]
     };
 
-    const PROGRESSION_DATA = {
+    const PROGRESSION_I18N = {
       wood: {
-        title: "Fase 1: El Despertar con un Tronco de Roble",
-        badge: "Minuto 0 - 2",
-        tip: "Solo fabrica 1 pico de madera. Mina 3 de piedra y salta directo a herramientas de piedra.",
-        breakdown: "Talar: <strong>3 troncos de roble</strong> (producen 12 tablones).",
-        steps: [
-          { step: "Paso 1", title: "Procesar Madera", desc: "Pon los troncos en la cuadrícula de fabricación para conseguir 12 tablones de roble." },
-          { step: "Paso 2", title: "Mesa de Trabajo", desc: "Usa 4 tablones para craftear tu Mesa de Trabajo y colócala en el suelo." },
-          { step: "Paso 3", title: "Palos y Pico", desc: "Haz 4 palos (2 tablones) y fabrica EXCLUSIVAMENTE 1 Pico de Madera (3 tablones + 2 palos)." }
-        ]
+        en: {
+          title: "Phase 1: Awakening with an Oak Log",
+          badge: "Min 0 - 2",
+          tip: "Craft only 1 wooden pickaxe. Mine 3 stone immediately and jump straight to stone tools.",
+          breakdown: "Chop: <strong>3 oak logs</strong> (yields 12 planks).",
+          steps: [
+            { step: "Step 1", title: "Process Wood", desc: "Place logs into 2x2 crafting grid to obtain 12 oak planks." },
+            { step: "Step 2", title: "Crafting Table", desc: "Use 4 planks to craft a Crafting Table and place it on the ground." },
+            { step: "Step 3", title: "Sticks & Wooden Pickaxe", desc: "Make 4 sticks (2 planks) and craft ONLY 1 Wooden Pickaxe (3 planks + 2 sticks)." }
+          ]
+        },
+        es: {
+          title: "Fase 1: El Despertar con un Tronco de Roble",
+          badge: "Min 0 - 2",
+          tip: "Solo fabrica 1 pico de madera. Mina 3 de piedra y salta directo a herramientas de piedra.",
+          breakdown: "Talar: <strong>3 troncos de roble</strong> (producen 12 tablones).",
+          steps: [
+            { step: "Paso 1", title: "Procesar Madera", desc: "Pon los troncos en la cuadrícula de fabricación para conseguir 12 tablones de roble." },
+            { step: "Paso 2", title: "Mesa de Trabajo", desc: "Usa 4 tablones para craftear tu Mesa de Trabajo y colócala en el suelo." },
+            { step: "Paso 3", title: "Palos y Pico", desc: "Haz 4 palos (2 tablones) y fabrica EXCLUSIVAMENTE 1 Pico de Madera (3 tablones + 2 palos)." }
+          ]
+        }
       },
       stone: {
-        title: "Fase 2: La Era de Piedra Inmediata",
-        badge: "Minuto 3 - 5",
-        tip: "Pica 3 de piedra, haz el pico de piedra y no gastes más el de madera.",
-        breakdown: "Extracción requerida: <strong>14 a 20 bloques de adoquín (Cobblestone)</strong>.",
-        steps: [
-          { step: "Paso 1", title: "Primeros 3 Adoquines", desc: "Cava hacia abajo o entra a una ladera. Pica 3 piedras y haz tu Pico de Piedra." },
-          { step: "Paso 2", title: "Kit de Piedra", desc: "Mina 11 bloques más: haz 1 Espada de Piedra, 1 Hacha de Piedra y 1 Horno." },
-          { step: "Paso 3", title: "Tala Rápida", desc: "Con la nueva hacha de piedra tala 15-20 troncos en cuestión de segundos." }
-        ]
+        en: {
+          title: "Phase 2: Instant Stone Age",
+          badge: "Min 3 - 5",
+          tip: "Mine 3 stone, craft stone pickaxe and discard the wooden one.",
+          breakdown: "Mining target: <strong>14 to 20 Cobblestone blocks</strong>.",
+          steps: [
+            { step: "Step 1", title: "First 3 Cobblestone", desc: "Dig into hillside or ground. Mine 3 cobblestone and craft Stone Pickaxe." },
+            { step: "Step 2", title: "Stone Toolset", desc: "Mine 11 more: craft 1 Stone Sword, 1 Stone Axe, and 1 Furnace." },
+            { step: "Step 3", title: "Fast Woodcutting", desc: "Use your stone axe to quickly chop 15-20 logs in seconds." }
+          ]
+        },
+        es: {
+          title: "Fase 2: La Era de Piedra Inmediata",
+          badge: "Min 3 - 5",
+          tip: "Pica 3 de piedra, haz el pico de piedra y no gastes más el de madera.",
+          breakdown: "Extracción requerida: <strong>14 a 20 bloques de adoquín (Cobblestone)</strong>.",
+          steps: [
+            { step: "Paso 1", title: "Primeros 3 Adoquines", desc: "Cava hacia abajo o entra a una ladera. Pica 3 piedras y haz tu Pico de Piedra." },
+            { step: "Paso 2", title: "Kit de Piedra", desc: "Mina 11 bloques más: haz 1 Espada de Piedra, 1 Hacha de Piedra y 1 Horno." },
+            { step: "Paso 3", title: "Tala Rápida", desc: "Con la nueva hacha de piedra tala 15-20 troncos en cuestión de segundos." }
+          ]
+        }
       },
       night: {
-        title: "Fase 3: Refugio, Carbón y Primera Noche",
-        badge: "Minuto 6 - 9",
-        tip: "Si no hallas carbón mineral, cocina troncos sin procesar en el horno para sacar carbón vegetal.",
-        breakdown: "Kit de noche: <strong>1 Cama (o cueva 3x3), 1 Horno activo, 4 Antorchas</strong>.",
-        steps: [
-          { step: "Paso 1", title: "Carbón Vegetal", desc: "Mete troncos arriba en el horno y tablones abajo para cocinar carbón vegetal." },
-          { step: "Paso 2", title: "Iluminación", desc: "Junta 1 carbón con 1 palo para crear 4 antorchas y evitar spawns de creepers." },
-          { step: "Paso 3", title: "Dormir o Cavar", desc: "Si tienes 3 de lana de oveja haz una cama. Si no, cava un agujero 3x3 y tápate." }
-        ]
+        en: {
+          title: "Phase 3: Shelter, Charcoal & Night 1",
+          badge: "Min 6 - 9",
+          tip: "If coal ore is missing, smelt raw logs in furnace using planks to get charcoal.",
+          breakdown: "Night kit: <strong>1 Bed (or 3x3 tunnel), 1 Active Furnace, 4 Torches</strong>.",
+          steps: [
+            { step: "Step 1", title: "Charcoal Smelting", desc: "Place raw logs in top furnace slot and planks on bottom to produce charcoal." },
+            { step: "Step 2", title: "Lighting Safety", desc: "Combine 1 charcoal with 1 stick for 4 torches to prevent creeper spawns." },
+            { step: "Step 3", title: "Sleep or Burrow", desc: "If you have 3 matching wool make a bed. If not, dig a 3x3 tunnel and seal entrance." }
+          ]
+        },
+        es: {
+          title: "Fase 3: Refugio, Carbón y Primera Noche",
+          badge: "Min 6 - 9",
+          tip: "Si no hallas carbón mineral, cocina troncos sin procesar en el horno para sacar carbón vegetal.",
+          breakdown: "Kit de noche: <strong>1 Cama (o cueva 3x3), 1 Horno activo, 4 Antorchas</strong>.",
+          steps: [
+            { step: "Paso 1", title: "Carbón Vegetal", desc: "Mete troncos arriba en el horno y tablones abajo para cocinar carbón vegetal." },
+            { step: "Paso 2", title: "Iluminación", desc: "Junta 1 carbón con 1 palo para crear 4 antorchas y evitar spawns de creepers." },
+            { step: "Paso 3", title: "Dormir o Cavar", desc: "Si tienes 3 de lana de oveja haz una cama. Si no, cava un agujero 3x3 y tápate." }
+          ]
+        }
       },
       iron: {
-        title: "Fase 4: La Fiebre del Hierro",
-        badge: "Día 2",
-        tip: "El escudo cuesta solo 1 de hierro y 6 maderas y bloquea el 100% de explosiones y flechas.",
-        breakdown: "Meta mínima: <strong>24 lingotes de hierro</strong> (armadura completa + escudo + cubo de agua).",
-        steps: [
-          { step: "Paso 1", title: "El Escudo (Prioridad 1)", desc: "1 lingote de hierro + 6 tablones. Bloquea flechas y daño crítico." },
-          { step: "Paso 2", title: "Cubo de Agua", desc: "3 lingotes de hierro. Te salva de caídas (MLG clutch) y convierte lava en obsidiana." },
-          { step: "Paso 3", title: "Armadura de Hierro", desc: "Equípate antes de descender a cavernas profundas." }
-        ]
+        en: {
+          title: "Phase 4: The Iron Rush",
+          badge: "Day 2",
+          tip: "Shield costs only 1 iron ingot and 6 planks, absorbing 100% creeper explosions and arrows.",
+          breakdown: "Target: <strong>24 Iron Ingots</strong> (full armor + shield + water bucket).",
+          steps: [
+            { step: "Step 1", title: "The Shield (Top Priority)", desc: "1 iron ingot + 6 planks. Completely negates projectile and explosion damage." },
+            { step: "Step 2", title: "Water Bucket", desc: "3 iron ingots. Clutch high falls and turn lava into obsidian instantly." },
+            { step: "Step 3", title: "Iron Armor & Pick", desc: "Equip chestplate and upgrade pickaxe before descending into deep caves." }
+          ]
+        },
+        es: {
+          title: "Fase 4: La Fiebre del Hierro",
+          badge: "Día 2",
+          tip: "El escudo cuesta solo 1 de hierro y 6 maderas y bloquea el 100% de explosiones y flechas.",
+          breakdown: "Meta mínima: <strong>24 lingotes de hierro</strong> (armadura completa + escudo + cubo de agua).",
+          steps: [
+            { step: "Paso 1", title: "El Escudo (Prioridad 1)", desc: "1 lingote de hierro + 6 tablones. Bloquea flechas y daño crítico." },
+            { step: "Paso 2", title: "Cubo de Agua", desc: "3 lingotes de hierro. Te salva de caídas (MLG clutch) y convierte lava en obsidiana." },
+            { step: "Paso 3", title: "Armadura de Hierro", desc: "Equípate antes de descender a cavernas profundas." }
+          ]
+        }
       },
       diamond: {
-        title: "Fase 5: Profundidades y Diamante",
-        badge: "Juego Medio",
-        tip: "La capa más óptima para diamantes en versiones modernas es Y: -58. Requiere pico de hierro.",
-        breakdown: "Meta inicial: <strong>5 diamantes</strong> (3 para Pico de Diamante + 2 para Mesa de Encantamientos).",
-        steps: [
-          { step: "Paso 1", title: "Descenso a Deepslate", desc: "Baja entre Y: -53 e Y: -58 iluminando siempre tu camino de vuelta." },
-          { step: "Paso 2", title: "Picado Seguro", desc: "Cava alrededor del diamante para verificar que no caiga a la lava." },
-          { step: "Paso 3", title: "Hacia el Anvil Solver", desc: "Con diamantes y obsidiana comienzas el proceso del yunque de Craftchemy." }
-        ]
+        en: {
+          title: "Phase 5: Deepslate & Diamonds",
+          badge: "Mid Game",
+          tip: "Most diamond veins generate between Y: -53 and Y: -58. Requires iron pickaxe.",
+          breakdown: "First goal: <strong>5 diamonds</strong> (3 for Diamond Pickaxe + 2 for Enchanting Table).",
+          steps: [
+            { step: "Step 1", title: "Descend to Deepslate", desc: "Strip mine or explore caves at Y: -58 placing torches along your left wall." },
+            { step: "Step 2", title: "Safe Extraction", desc: "Dig around diamond blocks to confirm no hidden lava pocket exists underneath." },
+            { step: "Step 3", title: "Ready for Craftchemy Anvil", desc: "Acquire obsidian and diamonds to launch full anvil enchantment stacking." }
+          ]
+        },
+        es: {
+          title: "Fase 5: Profundidades y Diamante",
+          badge: "Juego Medio",
+          tip: "La capa más óptima para diamantes en versiones modernas es Y: -58. Requiere pico de hierro.",
+          breakdown: "Meta inicial: <strong>5 diamantes</strong> (3 para Pico de Diamante + 2 para Mesa de Encantamientos).",
+          steps: [
+            { step: "Paso 1", title: "Descenso a Deepslate", desc: "Baja entre Y: -53 e Y: -58 iluminando siempre tu camino de vuelta." },
+            { step: "Paso 2", title: "Picado Seguro", desc: "Cava alrededor del diamante para verificar que no caiga a la lava." },
+            { step: "Paso 3", title: "Hacia el Anvil Solver", desc: "Con diamantes y obsidiana comienzas el proceso del yunque de Craftchemy." }
+          ]
+        }
       }
     };
 
     let currentItem = "sword";
     let selectedEnchants = [];
+    let currentStage = "wood";
+
+    function updateLanguageUI() {
+      const t = UI_TRANSLATIONS[currentLang];
+      
+      document.getElementById("tabAnvil").textContent = t.tabAnvil;
+      document.getElementById("tabProgression").textContent = t.tabProgression;
+      document.getElementById("lblSelectObject").textContent = t.lblSelectObject;
+      document.getElementById("lblAddEnchants").textContent = t.lblAddEnchants;
+      document.getElementById("optimizeBtn").textContent = t.optimizeBtn;
+      document.getElementById("resetBtn").textContent = t.resetBtn;
+      document.getElementById("lblRecipeTitle").textContent = t.lblRecipeTitle;
+      document.getElementById("lblMilestones").textContent = t.lblMilestones;
+      document.getElementById("lblRawMaterials").textContent = t.lblRawMaterials;
+
+      document.querySelectorAll(".lang-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.lang === currentLang);
+      });
+
+      document.querySelectorAll(".item-btn").forEach(b => {
+        const itemKey = b.dataset.item;
+        const nameSpan = b.querySelector(".it-name");
+        if (nameSpan && t.items[itemKey]) {
+          nameSpan.textContent = t.items[itemKey];
+        }
+      });
+
+      renderEnchants();
+      renderProgression(currentStage);
+      if (document.getElementById("nodesLayer").children.length > 0) {
+        optimizeTree();
+      } else {
+        document.getElementById("costIndicator").textContent = t.costDefault;
+      }
+    }
 
     function renderEnchants() {
       const list = document.getElementById("enchantList");
       list.innerHTML = "";
+      const t = UI_TRANSLATIONS[currentLang];
+
       ENCHANTMENTS_DATA[currentItem].forEach(enc => {
         const isSel = selectedEnchants.some(e => e.id === enc.id);
+        const displayName = currentLang === "es" ? enc.nameEs : enc.nameEn;
         const div = document.createElement("div");
         div.className = `enchant-item ${isSel ? "selected" : ""}`;
-        div.innerHTML = `<span>${enc.name}</span><span style="color:var(--text-muted);font-size:0.7rem;">${enc.level * enc.weight} niv</span>`;
+        div.innerHTML = `<span>${displayName}</span><span style="color:var(--text-muted);font-size:0.7rem;">${enc.level * enc.weight}${t.lvlShort}</span>`;
         div.onclick = () => {
           const idx = selectedEnchants.findIndex(e => e.id === enc.id);
           if (idx > -1) {
@@ -591,6 +793,14 @@
     }
 
     function setupEvents() {
+      // Cambio de idioma
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          currentLang = e.target.dataset.lang;
+          updateLanguageUI();
+        };
+      });
+
       // Pestañas
       document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.onclick = () => {
@@ -618,7 +828,8 @@
         btn.onclick = (e) => {
           document.querySelectorAll(".milestone-btn").forEach(b => b.classList.remove("active"));
           e.currentTarget.classList.add("active");
-          renderProgression(e.currentTarget.dataset.stage);
+          currentStage = e.currentTarget.dataset.stage;
+          renderProgression(currentStage);
         };
       });
 
@@ -643,12 +854,16 @@
     function optimizeTree() {
       if (selectedEnchants.length === 0) return;
       clearTree();
+      const t = UI_TRANSLATIONS[currentLang];
 
-      const leaves = selectedEnchants.map(enc => new AnvilNode(enc.name, enc.level * enc.weight, 0, false, true));
+      const leaves = selectedEnchants.map(enc => {
+        const dName = currentLang === "es" ? enc.nameEs : enc.nameEn;
+        return new AnvilNode(dName, enc.level * enc.weight, 0, false, true);
+      });
       leaves.sort((a, b) => b.cost - a.cost);
 
-      const itemNames = { sword: "Espada", pickaxe: "Pico", boots: "Botas", helmet: "Casco", chestplate: "Pechera", bow: "Arco", crossbow: "Ballesta", trident: "Tridente" };
-      const baseItem = new AnvilNode(`${itemNames[currentItem]} Base`, 0, 0, false, false);
+      const baseItemLabel = `${t.items[currentItem]} ${t.baseSuffix}`;
+      const baseItem = new AnvilNode(baseItemLabel, 0, 0, false, false);
 
       let pool = [...leaves];
       let totalCost = 0;
@@ -664,7 +879,7 @@
         if (cost > 39) isTooExpensive = true;
 
         steps.push({ left: a.name, right: b.name, cost: cost });
-        pool.push(new AnvilNode(`Libro Combinado`, cost, Math.max(a.priorPenalty, b.priorPenalty) + 1, false, true, a, b));
+        pool.push(new AnvilNode(t.mergedBook, cost, Math.max(a.priorPenalty, b.priorPenalty) + 1, false, true, a, b));
       }
 
       const finalBook = pool[0];
@@ -675,7 +890,8 @@
 
       steps.push({ left: baseItem.name, right: finalBook.name, cost: finalCost });
 
-      const root = new AnvilNode(`${itemNames[currentItem]} Perfecta`, finalCost, Math.max(baseItem.priorPenalty, finalBook.priorPenalty) + 1, true, false, baseItem, finalBook);
+      const rootName = `${t.items[currentItem]} ${t.perfectSuffix}`;
+      const root = new AnvilNode(rootName, finalCost, Math.max(baseItem.priorPenalty, finalBook.priorPenalty) + 1, true, false, baseItem, finalBook);
 
       renderTree(root);
       renderSteps(steps);
@@ -684,17 +900,18 @@
       banner.classList.remove("hidden", "error", "success");
       if (isTooExpensive) {
         banner.classList.add("error");
-        banner.textContent = "✕ ¡DEMASIADO CARO! Un paso supera los 39 niveles";
+        banner.textContent = t.errTooExpensive;
       } else {
         banner.classList.add("success");
-        banner.textContent = "✓ ¡RUTA ÓPTIMA GARANTIZADA!";
+        banner.textContent = t.succOptimal;
       }
-      document.getElementById("costIndicator").textContent = `Coste Total: ${totalCost} niveles`;
+      document.getElementById("costIndicator").textContent = `${t.costPrefix}${totalCost}${t.levels}`;
     }
 
     function renderTree(root) {
       const container = document.getElementById("nodesLayer");
       const svg = document.getElementById("svgOverlay");
+      const t = UI_TRANSLATIONS[currentLang];
       let currentY = 40;
 
       function layout(node, depth) {
@@ -718,7 +935,8 @@
         el.className = `tree-node ${node.isTarget ? "target" : ""} ${node.cost > 39 ? "error" : ""} ${node.isBook ? "enchanted" : ""}`;
         el.style.left = `${node.x}px`;
         el.style.top = `${node.y}px`;
-        el.innerHTML = `<h4>${node.name}</h4><span>${node.cost > 0 ? `Coste: ${node.cost} niv` : "Base"}</span>`;
+        const costText = node.cost > 0 ? `${t.stepCost}: ${node.cost}${t.lvlShort}` : t.baseSuffix;
+        el.innerHTML = `<h4>${node.name}</h4><span>${costText}</span>`;
         container.appendChild(el);
 
         if (node.left) { drawConn(node.left, node, svg); draw(node.left); }
@@ -742,20 +960,22 @@
     function renderSteps(steps) {
       const box = document.getElementById("recipeBox");
       const list = document.getElementById("recipeSteps");
+      const t = UI_TRANSLATIONS[currentLang];
       list.innerHTML = "";
       steps.forEach((s, i) => {
         const li = document.createElement("li");
-        li.innerHTML = `Paso ${i + 1}: Pon <strong>${s.left}</strong> a la izquierda y <strong>${s.right}</strong> a la derecha ➔ Gasto: <span>${s.cost} niveles</span>`;
+        li.innerHTML = `${t.stepPrefix} ${i + 1}: ${t.stepPlace} <strong>${s.left}</strong> ${t.stepLeft} <strong>${s.right}</strong> ${t.stepRight} ➔ ${t.stepCost}: <span>${s.cost}${t.levels}</span>`;
         list.appendChild(li);
       });
       box.classList.remove("hidden");
     }
 
     function renderProgression(stageKey) {
-      const data = PROGRESSION_DATA[stageKey];
+      const data = PROGRESSION_I18N[stageKey][currentLang];
+      const t = UI_TRANSLATIONS[currentLang];
       document.getElementById("stageTitle").textContent = data.title;
       document.getElementById("stageBadge").textContent = data.badge;
-      document.getElementById("survivalTip").innerHTML = `<strong>Consejo:</strong> ${data.tip}`;
+      document.getElementById("survivalTip").innerHTML = `<strong>${t.proTip}</strong> ${data.tip}`;
       document.getElementById("resourceBreakdown").innerHTML = data.breakdown;
 
       const grid = document.getElementById("stageSteps");
@@ -769,17 +989,17 @@
     }
 
     function clearTree() {
+      const t = UI_TRANSLATIONS[currentLang];
       document.getElementById("nodesLayer").innerHTML = "";
       document.getElementById("svgOverlay").innerHTML = "";
       document.getElementById("statusBanner").classList.add("hidden");
       document.getElementById("recipeBox").classList.add("hidden");
-      document.getElementById("costIndicator").textContent = "Coste Total: -- niveles";
+      document.getElementById("costIndicator").textContent = t.costDefault;
     }
 
     window.onload = () => {
       setupEvents();
-      renderEnchants();
-      renderProgression("wood");
+      updateLanguageUI();
     };
   </script>
 </body>
