@@ -1,0 +1,11 @@
+{
+  "_leeme": "Datos escritos a mano que el juego no trae. Cada objeto puede tener notas en ambos idiomas; la lámina las muestra marcadas como escritas a mano. Nunca copiar texto de la Minecraft Wiki.",
+  "objetos": {
+    "bedrock": {
+      "notas": {
+        "es": "No se puede romper ni obtener en modo supervivencia. Solo está disponible en modo creativo o con comandos.",
+        "en": "Cannot be broken or obtained in survival mode. Only available in creative mode or through commands."
+      }
+    }
+  }
+}

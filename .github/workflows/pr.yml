@@ -1,0 +1,26 @@
+# Cada pull request: valida datos y comprueba que el sitio construye.
+name: Comprobar PR
+
+on:
+  pull_request:
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar datos
+        run: python3 pipeline/validate.py
+      - name: Construir sitio
+        run: npm run build
+      - name: Comprobar cantidad de páginas
+        run: |
+          n=$(find dist -path '*/objeto/*/index.html' | wc -l)
+          echo "Láminas en español: $n"
+          test "$n" -gt 1500

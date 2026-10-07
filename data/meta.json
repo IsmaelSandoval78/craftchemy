@@ -1,0 +1,13 @@
+{
+  "version_minecraft": "26.3",
+  "objetos": 1657,
+  "recetas": 1720,
+  "tablas_de_botin": 1447,
+  "version_prismarine": "26.1",
+  "fuentes": [
+    "Mojang client.jar",
+    "Mojang assets (es_es)",
+    "misode/mcmeta summary",
+    "PrismarineJS minecraft-data"
+  ]
+}

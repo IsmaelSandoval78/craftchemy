@@ -8,9 +8,9 @@ Dueño: Ismael. Habla en español; los nombres de claves de datos y comentarios 
 
 ```bash
 npm run fetch                 # descarga fuentes de la versión en config/site.json a .cache/
-npm run data                  # genera data/fichas.json, index.json, meta.json
+npm run data                  # genera data/fichas.json, index.json, meta.json, nombres.json
 python3 pipeline/validate.py  # pruebas de cordura; córrelo siempre tras cambiar el pipeline
-npm run build                 # genera dist/ (3.316 láminas, íconos PNG, sitemap)
+npm run build                 # genera dist/ (3.314 láminas, íconos PNG, sitemap)
 npm run preview               # sirve dist/ en localhost:4321
 ```
 
@@ -19,12 +19,13 @@ npm run preview               # sirve dist/ en localhost:4321
 ## Estructura
 
 - `config/site.json` — nombre, dominio, versión de Minecraft (hoy 26.3), idiomas y rutas (`/es/objeto/`, `/en/item/`)
-- `pipeline/` — `fetch_sources.sh`, `build_fichas.py` (esquema documentado en su docstring y en el README anterior), `validate.py`, `latest_version.py`
+- `pipeline/` — `fetch_sources.sh`, `build_fichas.py` (esquema documentado en su docstring), `validate.py`, `latest_version.py`
 - `packages/icons/icons.mjs` — íconos 16×16 dibujados por código (plantillas por familia en `MAPS`, `strokeIcon`, `familyIcon`); `png.mjs` los renderiza a PNG sin dependencias
 - `packages/render/` — `render.mjs` (HTML de la lámina, compartido) e `i18n.mjs` (todos los textos en ambos idiomas)
 - `packages/design/planos.css` — tokens de color y estilos
-- `site/build.mjs` — generador del sitio; `site/static/search.js` — buscador
-- `content/extra.json` — datos escritos a mano que el juego no trae
+- `site/build.mjs` — generador del sitio; `site/static/search.js` — buscador; `site/preview.mjs` — servidor local
+- `.github/workflows/` — `deploy.yml` (push a main → Cloudflare Pages), `pr.yml` (valida cada PR), `version.yml` (lunes: versión nueva → PR)
+- `content/extra.json` — datos escritos a mano que el juego no trae; `content/descripciones/{es,en}/<id>.md` — descripciones originales
 - `docs/` — ARQUITECTURA, ROADMAP, NOMBRE, LEGAL
 
 ## Reglas del proyecto
@@ -40,7 +41,10 @@ npm run preview               # sirve dist/ en localhost:4321
 ## Trampas conocidas
 
 - Desde la 26.2, el botín usa `modifier` en vez de `functions`, `type` en vez de `condition`, y las condiciones pueden ser referencias a `data/minecraft/predicate/`. `build_fichas.py` soporta ambos formatos.
-- PrismarineJS (dureza/resistencia de bloques) va por detrás de mcmeta; los bloques nuevos salen sin esos valores.
+- PrismarineJS (dureza/resistencia de bloques) va por detrás de mcmeta (hoy da 26.1); los bloques nuevos salen sin esos valores y la lámina marca "dato de la 26.1".
+- En 26.3 las entradas de botín `tag` usan `items` (antes `name`) y `crafting_transmute` con resultado vacío copia el objeto de entrada.
+- Las recetas de alto horno/ahumador traen `cookingtime: 200` en 26.3 (antes 100); se publica tal cual, pendiente confirmar en el juego.
+- `air` está en el registro de objetos pero no tiene lámina: son 1.657 objetos.
 - Los íconos que no encajan en ninguna plantilla usan un patrón genérico simétrico; mejorar familias en `familyIcon`.
 
 ## Estado
@@ -50,3 +54,4 @@ Fase 0 (cimientos) terminada. Siguiente: **Fase 1**, ver `docs/ROADMAP.md`. Pend
 2. Plantillas de íconos para comida, plantas, objetos de criaturas y discos.
 3. Descripciones originales de los 150 objetos más buscados, en `content/descripciones/{es,en}/<id>.md`.
 4. Integrar el explorador de crafteo (mapa de usos navegable) en la lámina.
+5. Tradeos de aldeanos (`data/minecraft/villager_trade/`, nuevo formato 26.x).
