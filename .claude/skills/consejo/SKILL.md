@@ -28,4 +28,5 @@ Los asesores están en `.claude/agents/consejo-*.md`:
    - **Consenso**: en qué coinciden.
    - **Desacuerdos**: dónde chocan y por qué.
    - **Recomendación del consejo** y las decisiones que le tocan a Ismael.
-4. Si Ismael toma una decisión, regístrala en `docs/ESTRATEGIA.md` (sección "Decisiones") con fecha, para que el consejo la respete en adelante.
+4. Guarda la junta en `docs/juntas/AAAA-MM-DD-tema.md` (pregunta, asistentes, resumen por asesor con fuentes, consenso, desacuerdos).
+5. Si Ismael toma una decisión, regístrala en `docs/ESTRATEGIA.md` (sección "Decisiones") con fecha, para que el consejo la respete en adelante.
