@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arquitecto de Bloques — prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e9eee9; --panel:#ffffff; --ink:#1b2421; --muted:#5a6863; --line:#d3dbd6;
+  --accent:#3d7a37; --accent-ink:#ffffff; --sky1:#c4dfec; --sky2:#e8f2f0; --soft:#f2f5f2;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121816; --panel:#1a2220; --ink:#e4ebe7; --muted:#93a39c; --line:#2b3633;
+    --accent:#76b86b; --accent-ink:#10200e; --sky1:#1d2f38; --sky2:#14201f; --soft:#212b28;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121816; --panel:#1a2220; --ink:#e4ebe7; --muted:#93a39c; --line:#2b3633;
+  --accent:#76b86b; --accent-ink:#10200e; --sky1:#1d2f38; --sky2:#14201f; --soft:#212b28;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2{font-family:"Bricolage Grotesque","Public Sans",system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+.app{display:grid;grid-template-columns:370px 1fr;height:100%}
+aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:22px 22px 40px}
+aside header{margin-bottom:18px}
+aside h1{font-size:26px;line-height:1.1}
+aside header p{margin:6px 0 0;color:var(--muted);font-size:14px}
+section.block{border-top:1px solid var(--line);padding:16px 0 4px}
+section.block h2{font-size:16px;margin-bottom:10px}
+textarea{width:100%;min-height:78px;resize:vertical;font:inherit;color:var(--ink);background:var(--soft);
+  border:1px solid var(--line);border-radius:8px;padding:10px}
+textarea:focus,select:focus,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:600 14px/1 "Public Sans",sans-serif;border-radius:8px;padding:10px 14px;cursor:pointer;border:1px solid var(--line);background:var(--soft);color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.note{font-size:13px;color:var(--muted);margin:8px 0 0}
+.understood{font-size:13.5px;margin:10px 0 0;padding:9px 11px;border-radius:8px;background:var(--soft);border-left:3px solid var(--accent)}
+.understood:empty{display:none}
+.styles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.style-card{text-align:left;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;font:inherit}
+.style-card[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.style-card strong{display:block;font-size:14px}
+.style-card span{display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:3px}
+.swatches{display:flex;gap:3px;margin-bottom:7px}
+.swatches i{width:14px;height:14px;border-radius:2px;display:block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.field{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0}
+.field label{font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:500 13px/1 "Public Sans",sans-serif;padding:8px 11px;border:0;background:var(--panel);color:var(--ink);cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px}
+.stepper button{width:34px;height:32px;border:0;background:transparent;color:var(--ink);font-size:18px;cursor:pointer}
+.stepper output{min-width:26px;text-align:center;font-weight:600}
+.switch{position:relative;width:42px;height:24px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.switch span{position:absolute;inset:0;border-radius:12px;background:var(--line);transition:background .15s}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s}
+.switch input:checked+span{background:var(--accent)}
+.switch input:checked+span::after{transform:translateX(18px)}
+.pal-row{display:grid;grid-template-columns:96px 18px 1fr;gap:8px;align-items:center;padding:4px 0}
+.pal-row label{font-size:13.5px;color:var(--muted)}
+.pal-row i{width:18px;height:18px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+select{width:100%;font:inherit;font-size:13.5px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:6px 8px}
+main{display:grid;grid-template-rows:1fr auto;min-height:0;min-width:0}
+.view{position:relative;min-height:0;background:linear-gradient(180deg,var(--sky1),var(--sky2))}
+.view canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.view canvas:active{cursor:grabbing}
+.hud{position:absolute;left:14px;right:14px;display:flex;gap:10px;align-items:center;pointer-events:none}
+.hud>*{pointer-events:auto}
+.hud.top{top:14px;justify-content:space-between}
+.hud.bottom{bottom:14px}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.layer{display:flex;align-items:center;gap:10px;flex:1;max-width:520px}
+.layer input{flex:1;accent-color:var(--accent)}
+.report{display:grid;grid-template-columns:1.1fr 1fr;border-top:1px solid var(--line);background:var(--panel);max-height:36vh;min-height:0}
+.report>div{overflow-y:auto;padding:16px 20px}
+.report>div+div{border-left:1px solid var(--line)}
+.report h2{font-size:16px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td{padding:5px 0;border-bottom:1px solid var(--line)}
+td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;width:70px}
+td.s{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;width:120px}
+td i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:8px;vertical-align:-1px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.total{margin-top:8px;font-size:13px;color:var(--muted)}
+ol.rules{margin:0;padding-left:20px;font-size:13.5px}
+ol.rules li{margin:0 0 7px}
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{grid-template-columns:1fr;height:auto}
+  aside{border-right:0;border-bottom:1px solid var(--line);overflow:visible}
+  .view{height:62vh}
+  .report{grid-template-columns:1fr;max-height:none}
+  .report>div+div{border-left:0;border-top:1px solid var(--line)}
+}
+@media (prefers-reduced-motion:reduce){.switch span,.switch span::after{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <header>
+      <h1>Arquitecto de Bloques</h1>
+      <p>Tú eliges las opciones; las reglas de construcción hacen el diseño.</p>
+    </header>
+
+    <section class="block">
+      <h2>Describe tu casa</h2>
+      <textarea id="prompt" aria-label="Descripción de la casa">Casa estilo Le Corbusier de 3 habitaciones para terreno plano con piscina y ventanas grandes en white quartz</textarea>
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="interpret">Interpretar</button></div>
+      <p class="understood" id="understood" aria-live="polite"></p>
+      <p class="note">El intérprete de este prototipo usa palabras clave. En la versión final, aquí entra un modelo de lenguaje que solo traduce el texto a opciones; nunca coloca bloques.</p>
+    </section>
+
+    <section class="block">
+      <h2>Estilo</h2>
+      <div class="styles" id="styles"></div>
+    </section>
+
+    <section class="block">
+      <h2>Distribución</h2>
+      <div class="field"><label>Habitaciones</label>
+        <div class="stepper"><button id="roomsMinus" aria-label="Menos habitaciones">−</button><output id="rooms">3</output><button id="roomsPlus" aria-label="Más habitaciones">+</button></div>
+      </div>
+      <div class="field"><label>Tamaño</label><div class="seg" data-key="size"><button data-v="compacto">Compacto</button><button data-v="amplio">Amplio</button></div></div>
+      <div class="field"><label>Altura de techo</label><div class="seg" data-key="ceiling"><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button></div></div>
+      <div class="field"><label>Ventanas</label><div class="seg" data-key="windows"><button data-v="normales">Normales</button><button data-v="grandes">Grandes</button></div></div>
+      <p class="note">Terreno: plano. Las pendientes quedan para la siguiente versión.</p>
+    </section>
+
+    <section class="block">
+      <h2>Extras</h2>
+      <div class="field"><label for="pool">Piscina</label><span class="switch"><input type="checkbox" id="pool"><span></span></span></div>
+      <div class="field"><label for="garden">Jardín y camino</label><span class="switch"><input type="checkbox" id="garden"><span></span></span></div>
+    </section>
+
+    <section class="block">
+      <h2>Paleta de bloques</h2>
+      <div id="palette"></div>
+      <p class="note">Cada estilo sugiere su paleta. Si cambias de estilo, vuelve a la sugerida.</p>
+    </section>
+  </aside>
+
+  <main>
+    <div class="view" id="view">
+      <div class="hud top">
+        <span class="pill" id="dims"></span>
+        <button class="btn" id="interior" aria-pressed="false">Ver interior</button>
+      </div>
+      <div class="hud bottom">
+        <div class="pill layer"><label for="layer">Capa</label><input type="range" id="layer"><output id="layerOut"></output></div>
+      </div>
+    </div>
+    <div class="report">
+      <div>
+        <h2>Materiales</h2>
+        <table id="materials"></table>
+        <p class="total" id="total"></p>
+      </div>
+      <div>
+        <h2>Reglas aplicadas</h2>
+        <ol class="rules" id="rules"></ol>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ---------- Catálogo de bloques ----------
+const CAT = {
+  grass_block:{n:'Bloque de césped',c:'#68a043'},
+  dirt:{n:'Tierra',c:'#86603b'},
+  white_concrete:{n:'Concreto blanco',c:'#e7eaea'},
+  quartz_block:{n:'Bloque de cuarzo',c:'#ebe5dd'},
+  smooth_quartz:{n:'Cuarzo liso',c:'#efe9e1'},
+  quartz_pillar:{n:'Pilar de cuarzo',c:'#e2dbd1'},
+  smooth_stone:{n:'Piedra lisa',c:'#9d9d9d'},
+  gray_concrete:{n:'Concreto gris',c:'#4f5458'},
+  calcite:{n:'Calcita',c:'#dcddd8'},
+  white_terracotta:{n:'Terracota blanca',c:'#cfb1a0'},
+  cobblestone:{n:'Roca',c:'#777777'},
+  stone_bricks:{n:'Ladrillos de piedra',c:'#7d7d7d'},
+  dark_oak_log:{n:'Tronco de roble oscuro',c:'#3b2d1c'},
+  stripped_dark_oak_log:{n:'Tronco descortezado de roble oscuro',c:'#5e4632'},
+  spruce_log:{n:'Tronco de abeto',c:'#3a2817'},
+  oak_log:{n:'Tronco de roble',c:'#6b5333'},
+  oak_planks:{n:'Tablones de roble',c:'#a5854d'},
+  spruce_planks:{n:'Tablones de abeto',c:'#6d5033'},
+  birch_planks:{n:'Tablones de abedul',c:'#c6b475'},
+  bamboo_planks:{n:'Tablones de bambú',c:'#c2ad55'},
+  dark_oak_planks:{n:'Tablones de roble oscuro',c:'#432a13'},
+  deepslate_tiles:{n:'Baldosas de pizarra profunda',c:'#38383d'},
+  spruce_stairs:{n:'Escaleras de abeto',c:'#5c4229'},
+  dark_oak_stairs:{n:'Escaleras de roble oscuro',c:'#3e2914'},
+  glass:{n:'Vidrio',c:'#cbe6ee',t:'glass'},
+  glass_pane:{n:'Panel de vidrio',c:'#cbe6ee',t:'glass'},
+  white_stained_glass_pane:{n:'Panel de vidrio blanco',c:'#f3f5f5',t:'glass'},
+  sea_lantern:{n:'Linterna marina',c:'#d9ece6',t:'light'},
+  lantern:{n:'Farol',c:'#f0b54a',t:'light',s:'small'},
+  water:{n:'Agua (fuentes)',c:'#3c73e0',t:'water'},
+  oak_leaves:{n:'Hojas de roble (seto)',c:'#4c7d2a'},
+  poppy:{n:'Flores',c:'#d2433f',s:'small'},
+  dirt_path:{n:'Camino de tierra',c:'#9a7b44'},
+  oak_door:{n:'Puerta de roble',c:'#8c6838',s:'door',per:2},
+  light_blue_terracotta:{n:'Terracota azul claro',c:'#716c8a'},
+  yellow_terracotta:{n:'Terracota amarilla',c:'#b9852a'},
+  quartz_stairs:{n:'Escaleras de cuarzo',c:'#e9e3da'},
+  grass_roof:{n:'Bloque de césped (terraza)',c:'#6fa548'},
+  red_bed:{n:'Cama',c:'#b3312c',s:'bed',per:2},
+  spruce_slab:{n:'Losa de abeto (repisa)',c:'#6d5033',s:'slabTop'},
+  oak_slab:{n:'Losa de roble (repisa)',c:'#a5854d',s:'slabTop'},
+};
+const TERRAIN = new Set(['grass_block','dirt']);
+
+const SLOTS = [
+  ['wall','Paredes',['white_concrete','quartz_block','smooth_quartz','calcite','white_terracotta','oak_planks','spruce_planks','birch_planks','stone_bricks','cobblestone']],
+  ['frame','Marco',['quartz_pillar','dark_oak_log','stripped_dark_oak_log','spruce_log','oak_log','stone_bricks','gray_concrete']],
+  ['base','Base',['smooth_stone','cobblestone','stone_bricks','gray_concrete','quartz_block']],
+  ['roof','Techo',['smooth_quartz','gray_concrete','spruce_stairs','dark_oak_stairs','deepslate_tiles']],
+  ['floor','Piso',['smooth_quartz','oak_planks','spruce_planks','birch_planks','bamboo_planks','dark_oak_planks']],
+  ['glass','Vidrio',['glass','glass_pane','white_stained_glass_pane']],
+  ['light','Luz',['sea_lantern','lantern']],
+  ['inner','Muros interiores',['light_blue_terracotta','yellow_terracotta','white_concrete','calcite','quartz_block','oak_planks','spruce_planks','birch_planks','stone_bricks']],
+  ['edge','Borde piscina',['smooth_quartz','smooth_stone','stone_bricks','quartz_block']],
+];
+
+const STYLES = {
+  moderno:{n:'Moderno',d:'Volúmenes limpios, techo plano y mucho vidrio.',roof:'flat',overhang:1,beam:false,sill:null,
+    pal:{base:'smooth_stone',wall:'white_concrete',frame:'quartz_pillar',roof:'smooth_quartz',floor:'birch_planks',glass:'glass',light:'sea_lantern',edge:'smooth_quartz'}},
+  purista:{n:'Purista',d:'Pilotes, planta libre, fachada libre, ventana corrida y terraza jardín.',roof:'garden',overhang:0,beam:false,sill:null,
+    pal:{base:'smooth_stone',wall:'white_concrete',inner:'light_blue_terracotta',frame:'quartz_pillar',roof:'smooth_quartz',floor:'smooth_quartz',glass:'glass_pane',light:'sea_lantern',edge:'smooth_quartz'}},
+  medieval:{n:'Medieval',d:'Base de piedra, entramado de troncos y techo inclinado.',roof:'gable',overhang:1,beam:true,sill:'spruce_slab',
+    pal:{base:'cobblestone',wall:'calcite',frame:'dark_oak_log',roof:'spruce_stairs',floor:'spruce_planks',glass:'glass_pane',light:'lantern',edge:'stone_bricks'}},
+  japones:{n:'Japonés',d:'Aleros amplios, madera oscura y paneles tipo shoji.',roof:'gable',overhang:2,upturn:true,beam:true,sill:null,
+    pal:{base:'stone_bricks',wall:'white_terracotta',frame:'stripped_dark_oak_log',roof:'deepslate_tiles',floor:'bamboo_planks',glass:'white_stained_glass_pane',light:'lantern',edge:'stone_bricks'}},
+  rustico:{n:'Rústico',d:'Madera cálida, piedra y proporciones de cabaña.',roof:'gable',overhang:1,beam:true,sill:'oak_slab',
+    pal:{base:'cobblestone',wall:'oak_planks',frame:'oak_log',roof:'dark_oak_stairs',floor:'oak_planks',glass:'glass_pane',light:'lantern',edge:'smooth_stone'}},
+};
+
+const state = {style:'moderno',rooms:3,size:'compacto',ceiling:4,windows:'grandes',pool:true,garden:true,pal:{},interior:false,layer:null};
+
+// ---------- Motor de reglas ----------
+function generate(p){
+  const st = STYLES[p.style];
+  const pal = Object.assign({}, st.pal, p.pal);
+  if(!pal.inner) pal.inner = pal.wall;
+  const B = new Map();
+  const K = (x,y,z)=>x+','+y+','+z;
+  const set = (x,y,z,id)=>B.set(K(x,y,z),id);
+  const has = (x,y,z)=>B.has(K(x,y,z));
+  const pur = st.roof==='garden';
+  const e = pur ? 4 : 0;                       // elevación sobre pilotes
+  const S = (x,y,z,id)=>set(x,y+e,z,id);
+  const SH = (x,y,z)=>has(x,y+e,z);
+  const H = p.ceiling, big = p.size==='amplio';
+  const bedW = big?9:7, bathW = 5, Dl = big?11:9, Db = big?9:7;
+  const rules = [];
+
+  const mods = [];
+  for(let i=0;i<p.rooms;i++) mods.push({type:'bed',w:bedW});
+  mods.push({type:'bath',w:bathW});
+  let x = 1;
+  for(const m of mods){ m.x0 = x; m.x1 = x+m.w-1; x = m.x1+2; }
+  const W = mods[mods.length-1].x1 + 2;
+  const zDiv = 1+Dl, D = zDiv+Db+2, mid = (W-1)/2;
+  const divXs = mods.slice(0,-1).map(m=>m.x1+1);
+  const perim = (x,z)=>x===0||x===W-1||z===0||z===D-1;
+
+  const cols = new Set();
+  const addCol = (x,z)=>cols.add(x+','+z);
+  [[0,0],[W-1,0],[0,D-1],[W-1,D-1]].forEach(c=>addCol(...c));
+  if(!pur){
+    addCol(0,zDiv); addCol(W-1,zDiv);
+    divXs.forEach(dx=>{addCol(dx,0);addCol(dx,D-1);});
+  }
+
+  // Losa de piso
+  for(let x=0;x<W;x++) for(let z=0;z<D;z++) S(x,0,z, perim(x,z)?(pur?pal.wall:pal.base):pal.floor);
+
+  // Muros exteriores
+  for(let x=0;x<W;x++) for(let z=0;z<D;z++){
+    if(!perim(x,z)) continue;
+    const col = cols.has(x+','+z);
+    for(let y=1;y<=H;y++){
+      let id = pal.wall;
+      if(col) id = pal.frame;
+      else if(y===1 && !pur) id = pal.base;
+      else if(y===H && st.beam) id = pal.frame;
+      S(x,y,z,id);
+    }
+  }
+  // Muros interiores
+  for(let y=1;y<=H;y++){
+    for(let x=1;x<W-1;x++) S(x,y,zDiv,pal.inner);
+    for(const dx of divXs) for(let z=zDiv+1;z<D-1;z++) S(dx,y,z,pal.inner);
+  }
+
+  if(pur){
+    rules.push('Pilotes: la casa se eleva 3 bloques sobre una retícula de columnas y el suelo queda libre debajo.');
+    rules.push('Planta libre: las columnas siguen por dentro de la casa y los muros interiores no cargan, se ubican donde los pide la distribución.');
+    rules.push('Fachada libre: las columnas quedan un bloque hacia adentro, así que la fachada es una piel sin estructura.');
+  } else {
+    rules.push(`Ancho exterior de ${W} bloques, un número impar: la puerta principal queda exactamente centrada.`);
+    rules.push(`Esquinas y uniones de muros marcadas con ${CAT[pal.frame].n.toLowerCase()} para dar estructura visible.`);
+    rules.push(`Primera fila de ${CAT[pal.base].n.toLowerCase()}: la pared arranca con una base y no se ve plana.`);
+    if(st.beam) rules.push('Viga superior del mismo material que el marco, cerrando cada muro por arriba.');
+  }
+  rules.push(H===3 ? 'Techo interior de 3 bloques: el mínimo funcional, porque el jugador mide casi 2.' :
+    `Techo interior de ${H} bloques: el jugador mide casi 2, así que los espacios se sienten amplios.`);
+
+  // Puertas
+  if(!pur){ S(mid,1,0,'oak_door'); S(mid,2,0,'oak_door'); }
+  for(const m of mods){ const cx=(m.x0+m.x1)/2; S(cx,1,zDiv,'oak_door'); S(cx,2,zDiv,'oak_door'); }
+  rules.push(`Puertas de 1×2 desde la sala hacia cada uno de los ${mods.length} cuartos.`);
+
+  // Ventanas
+  const large = p.windows==='grandes';
+  let yBottom, yTop;
+  if(pur){ yBottom = 2; yTop = large ? Math.max(2,H-1) : Math.max(2,Math.min(3,H-1)); }
+  else { yBottom = large ? (st.roof==='flat'?1:2) : 2; yTop = large ? Math.max(2,H-1) : Math.min(3,H-1); }
+  const lines = [
+    {pts:[...Array(W).keys()].map(x=>[x,0]),out:[0,-1],front:true},
+    {pts:[...Array(W).keys()].map(x=>[x,D-1]),out:[0,1]},
+    {pts:[...Array(D).keys()].map(z=>[0,z]),out:[-1,0]},
+    {pts:[...Array(D).keys()].map(z=>[W-1,z]),out:[1,0]},
+  ];
+  let sills = 0;
+  for(const L of lines){
+    const runs=[]; let cur=[];
+    for(const pt of L.pts){ if(cols.has(pt[0]+','+pt[1])){ if(cur.length) runs.push(cur); cur=[]; } else cur.push(pt); }
+    if(cur.length) runs.push(cur);
+    for(const run of runs){
+      const len = run.length; let a, b;
+      if(pur){ a=0; b=len-1; }
+      else if(large){ const m = len>=5?1:0; a=m; b=len-1-m; }
+      else { const w = len>=5?(len%2?3:2):(len>=3?1:0); if(!w) continue; a=Math.floor((len-w)/2); b=a+w-1; }
+      for(let i=a;i<=b;i++){
+        const [x,z]=run[i];
+        if(L.front && !pur && Math.abs(x-mid)<=1) continue;
+        for(let y=yBottom;y<=yTop;y++) S(x,y,z,pal.glass);
+        if(st.sill && yBottom>=2){ S(x+L.out[0],1,z+L.out[1],st.sill); sills++; }
+      }
+    }
+  }
+  if(pur) rules.push('Ventana corrida: una franja horizontal de vidrio recorre cada fachada de esquina a esquina, posible porque la fachada no carga.');
+  else rules.push(large ? 'Ventanas grandes: ocupan cada tramo de muro entre columnas, dejando un bloque de marco a cada lado.'
+                        : 'Ventanas centradas en cada tramo entre columnas, con ancho impar cuando el tramo lo permite.');
+  if(sills) rules.push('Repisas bajo cada ventana: dan profundidad a la fachada desde afuera.');
+
+  // Camas
+  for(const m of mods) if(m.type==='bed'){ S(m.x0+1,1,D-2,'red_bed'); S(m.x0+1,1,D-3,'red_bed'); }
+
+  // Techo
+  if(pur){
+    for(let x=0;x<W;x++) for(let z=0;z<D;z++) S(x,H+1,z,pal.roof);
+    for(let x=0;x<W;x++) for(let z=0;z<D;z++) if(perim(x,z)) S(x,H+2,z,pal.wall);
+    const half = Math.floor(D/2);
+    for(let x=2;x<=W-3;x++) for(let z=2;z<=half;z++){
+      if(x===2||x===W-3||z===2||z===half){ S(x,H+2,z,'oak_leaves'); continue; }
+      S(x,H+2,z,'grass_roof');
+      if(((x*7+z*13)%9)===0) S(x,H+3,z,'poppy');
+    }
+    const r = Math.min(5, Math.floor((W-5)/2), D-half-4), cx = Math.round(mid), cz = D-3;
+    for(let t=0;t<=Math.PI+1e-6;t+=0.04){
+      const ax = cx+Math.round(r*Math.cos(t)), az = cz-Math.round(r*Math.sin(t));
+      for(let y=H+2;y<=H+4;y++) S(ax,y,az,pal.wall);
+    }
+    rules.push('Terraza jardín: el techo plano se convierte en jardín, con césped, setos y flores donde antes había suelo.');
+    rules.push('Muro curvo en la terraza, a modo de cortavientos del solárium: la única curva, contra un volumen recto.');
+  } else if(st.roof==='flat'){
+    for(let x=-1;x<=W;x++) for(let z=-1;z<=D;z++) S(x,H+1,z,pal.roof);
+    for(let x=-1;x<=W;x++){ S(x,H+2,-1,pal.frame); S(x,H+2,D,pal.frame); }
+    for(let z=0;z<D;z++){ S(-1,H+2,z,pal.frame); S(W,H+2,z,pal.frame); }
+    rules.push('Techo plano con voladizo de 1 bloque y pretil perimetral, típico del estilo moderno.');
+  } else {
+    const o = st.overhang;
+    for(let k=0;;k++){
+      const zA=-o+k, zB=D-1+o-k; if(zA>zB) break;
+      const y=H+1+k;
+      for(let x=-o;x<=W-1+o;x++){ S(x,y,zA,pal.roof); S(x,y,zB,pal.roof); }
+      for(let z=Math.max(0,zA+1); z<=Math.min(D-1,zB-1); z++){ S(0,y,z,pal.wall); S(W-1,y,z,pal.wall); }
+      if(k===0 && st.upturn){ [[-o,zA],[W-1+o,zA],[-o,zB],[W-1+o,zB]].forEach(([x,z])=>S(x,y+1,z,pal.roof)); }
+    }
+    for(let x=0;x<W;x++) for(let z=0;z<D;z++) if(!SH(x,H+1,z)) S(x,H+1,z,pal.floor);
+    rules.push(`Techo a dos aguas con alero de ${o} bloque${o>1?'s':''} sobresaliendo de los muros${st.upturn?' y esquinas levantadas':''}.`);
+  }
+
+  // Iluminación
+  let lights = 0;
+  const flatTop = st.roof==='flat' || pur;
+  const putLight = (x,z)=>{ if(flatTop) S(x,H+1,z,pal.light); else S(x,H,z,pal.light); lights++; };
+  const lz = 1+(Dl-1)/2;
+  for(let lx=4; lx<W-3; lx+=8) putLight(lx,lz);
+  for(const m of mods) putLight((m.x0+m.x1)/2, zDiv+1+(Db-1)/2);
+
+  // Pilotes, columnas interiores, planta baja
+  if(pur){
+    const grid = (n)=>{ const a=[]; for(let v=1; v<=n-2; v+=5) a.push(v); if(a[a.length-1]!==n-2) a.push(n-2); return a; };
+    const xs = grid(W), zs = grid(D);
+    const doorXs = mods.map(m=>(m.x0+m.x1)/2);
+    for(let x=0;x<W;x++) for(let z=0;z<D;z++) set(x,0,z,pal.base);
+    for(const gx of xs) for(const gz of zs){
+      for(let y=1;y<e;y++) set(gx,y,gz,pal.frame);
+      const nearDoor = doorXs.some(dx=>dx===gx) && Math.abs(gz-zDiv)<=1;
+      if(!nearDoor) for(let y=1;y<=H;y++) if(!SH(gx,y,gz)) S(gx,y,gz,pal.frame);
+    }
+    // vestíbulo de vidrio con escalera
+    const bx0=mid-2, bx1=mid+2, bz0=2, bz1=8;
+    for(let x=bx0;x<=bx1;x++) for(let z=bz0;z<=bz1;z++){
+      const edge = x===bx0||x===bx1||z===bz0||z===bz1;
+      if(edge) for(let y=1;y<e;y++) if(!has(x,y,z)) set(x,y,z,pal.glass);
+    }
+    set(mid,1,bz0,'oak_door'); set(mid,2,bz0,'oak_door'); B.delete(K(mid,3,bz0)); set(mid,3,bz0,pal.glass);
+    for(let i=0;i<3;i++){ set(mid,1+i,4+i,'quartz_stairs'); B.delete(K(mid,e,4+i)); for(let y=1;y<=2;y++) B.delete(K(mid,e+y,4+i)); }
+    for(let lx=3; lx<W-2; lx+=5) for(const lz2 of [Math.floor(D/3), Math.floor(2*D/3)]) if(!(Math.abs(lx-mid)<=2 && lz2>=bz0 && lz2<=bz1)) { set(lx,0,lz2,pal.light); lights++; }
+    rules.push('Vestíbulo de vidrio en planta baja con escalera hacia el piso elevado.');
+    rules.push(`${lights} fuentes de luz, incluidas las del suelo bajo los pilotes: esa zona en sombra es donde aparecerían mobs.`);
+  } else {
+    rules.push(`${lights} fuentes de luz repartidas: ningún cuarto queda a oscuras, así que no aparecen mobs adentro.`);
+  }
+
+  // Piscina
+  let xMax = W+3, zMin = -4;
+  if(p.pool){
+    const pw = big?11:9, pl = 5;
+    let x1 = W-2, x0 = x1-pw+1;
+    if(x0 <= mid+2){ x0 = mid+3; x1 = x0+pw-1; }
+    const z1 = -3, z0 = z1-pl+1;
+    for(let x=x0-1;x<=x1+1;x++) for(let z=z0-1;z<=z1+1;z++){
+      const inside = x>=x0&&x<=x1&&z>=z0&&z<=z1;
+      if(inside){ set(x,0,z,'water'); set(x,-1,z,'water'); set(x,-2,z,pal.edge); }
+      else { set(x,0,z,pal.edge); set(x,-1,z,pal.edge); }
+    }
+    xMax = Math.max(xMax, x1+4); zMin = Math.min(zMin, z0-4);
+    rules.push(`Piscina de ${pw}×${pl} con 2 bloques de profundidad y borde de ${CAT[pal.edge].n.toLowerCase()}: el agua queda contenida y no se desborda.`);
+  }
+
+  // Jardín
+  if(p.garden){
+    for(let z=(pur?1:-1); z>=zMin; z--) set(mid,0,z,'dirt_path');
+    for(let x=1;x<W-1;x++){
+      if(Math.abs(x-mid)<=1) continue;
+      if(Math.abs(x-mid)===2) set(x,1,-1,'poppy');
+      else if(!has(x,1,-1)) set(x,1,-2,'oak_leaves');
+    }
+    rules.push('Camino recto desde la puerta y seto al frente, separado un bloque de la fachada.');
+  }
+
+  // Terreno
+  for(let x=-4;x<=xMax;x++) for(let z=zMin;z<=D+3;z++){
+    if(!has(x,0,z)) set(x,0,z,'grass_block');
+    if(!has(x,-1,z)) set(x,-1,z,'dirt');
+  }
+
+  let yMax = -9;
+  for(const k of B.keys()){ const y = +k.split(',')[1]; if(y>yMax) yMax=y; }
+  return {B,W,D,H:e+H,yMax,yMin:-2,rules,center:[(W-1)/2,(e+H+2)/2,(D-1)/2 + zMin/3]};
+}
+
+// ---------- Intérprete del texto (palabras clave) ----------
+const NUM = {un:1,una:1,uno:1,one:1,dos:2,two:2,tres:3,three:3,cuatro:4,four:4,cinco:5,five:5,seis:6,six:6};
+function interpret(text){
+  let t = text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const got = [], ch = {pal:{}};
+  if(/corbusier|purist|racionalis|savoye|estilo internacional/.test(t)){ ch.style='purista'; got.push('estilo purista'); }
+  else if(/modern|contempor|minimal/.test(t)){ ch.style='moderno'; got.push('estilo moderno'); }
+  else if(/mediev|castill|tudor/.test(t)){ ch.style='medieval'; got.push('estilo medieval'); }
+  else if(/japon|zen|asiat|oriental/.test(t)){ ch.style='japones'; got.push('estilo japonés'); }
+  else if(/rustic|cabana|cabin|campo|granja|madera/.test(t)){ ch.style='rustico'; got.push('estilo rústico'); }
+  const m = t.match(/(\d+|una?|uno|dos|tres|cuatro|cinco|seis|one|two|three|four|five|six)\s+(habitacion|cuarto|dormitorio|recamara|bedroom|room)/);
+  if(m){ let n = isNaN(m[1])?NUM[m[1]]:+m[1]; const capped = n>5; n=Math.max(1,Math.min(5,n)); ch.rooms=n; got.push(`${n} habitaci${n>1?'ones':'ón'}${capped?' (el máximo de este prototipo)':''}`); }
+  if(/sin (piscina|alberca)|no pool|without (a )?pool/.test(t)){ ch.pool=false; got.push('sin piscina'); }
+  else if(/piscina|alberca|pool/.test(t)){ ch.pool=true; got.push('piscina'); }
+  if(/jardin|garden|seto|flores/.test(t)){ ch.garden=true; got.push('jardín'); }
+  const winRe = /ventanas? grandes|ventanales|big windows|large windows|floor.to.ceiling|piso a techo/;
+  if(winRe.test(t)){ ch.windows='grandes'; got.push('ventanas grandes'); t=t.replace(winRe,''); }
+  else if(/ventanas? (pequen|chic|normal)/.test(t)){ ch.windows='normales'; got.push('ventanas normales'); }
+  if(/techos? alt|high ceiling/.test(t)){ ch.ceiling=5; got.push('techos altos'); }
+  if(/grande|amplia|espacios|large house|big house|mansion/.test(t)){ ch.size='amplio'; got.push('tamaño amplio'); }
+  else if(/pequen|compact|small|chica/.test(t)){ ch.size='compacto'; got.push('tamaño compacto'); }
+  if(/cuarzo|quartz/.test(t)){ ch.pal.wall='quartz_block'; got.push('paredes de cuarzo'); }
+  else if(/concreto|hormigon|concrete/.test(t)){ ch.pal.wall='white_concrete'; got.push('paredes de concreto'); }
+  else if(/piedra|stone/.test(t)){ ch.pal.wall='stone_bricks'; got.push('paredes de piedra'); }
+  return {ch,got};
+}
+
+// ---------- Interfaz ----------
+const $ = s=>document.querySelector(s);
+function renderStyles(){
+  $('#styles').innerHTML = Object.entries(STYLES).map(([k,s])=>`
+    <button class="style-card" data-style="${k}" aria-pressed="${state.style===k}">
+      <div class="swatches">${['wall','frame','roof','base'].map(sl=>`<i style="background:${CAT[s.pal[sl]].c}"></i>`).join('')}</div>
+      <strong>${s.n}</strong><span>${s.d}</span>
+    </button>`).join('');
+  document.querySelectorAll('.style-card').forEach(b=>b.onclick=()=>{ state.style=b.dataset.style; state.pal={}; update(); });
+}
+function renderPalette(){
+  const pal = Object.assign({}, STYLES[state.style].pal, state.pal);
+  if(!pal.inner) pal.inner = pal.wall;
+  $('#palette').innerHTML = SLOTS.map(([k,label,opts])=>{
+    if(k==='edge' && !state.pool) return '';
+    const list = opts.includes(pal[k])?opts:[pal[k],...opts];
+    return `<div class="pal-row"><label for="pal-${k}">${label}</label><i style="background:${CAT[pal[k]].c}"></i>
+      <select id="pal-${k}" data-slot="${k}">${list.map(id=>`<option value="${id}" ${id===pal[k]?'selected':''}>${CAT[id].n}</option>`).join('')}</select></div>`;
+  }).join('');
+  document.querySelectorAll('#palette select').forEach(s=>s.onchange=()=>{ state.pal[s.dataset.slot]=s.value; update(); });
+}
+function syncControls(){
+  $('#rooms').textContent = state.rooms;
+  document.querySelectorAll('.seg').forEach(seg=>{
+    const key = seg.dataset.key;
+    seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v)===String(state[key])));
+  });
+  $('#pool').checked = state.pool; $('#garden').checked = state.garden;
+  $('#interior').setAttribute('aria-pressed', state.interior);
+  $('#interior').textContent = state.interior ? 'Ver con techo' : 'Ver interior';
+}
+document.querySelectorAll('.seg').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  const key = seg.dataset.key; state[key] = key==='ceiling' ? +b.dataset.v : b.dataset.v; update();
+}));
+$('#roomsMinus').onclick=()=>{ state.rooms=Math.max(1,state.rooms-1); update(); };
+$('#roomsPlus').onclick=()=>{ state.rooms=Math.min(5,state.rooms+1); update(); };
+$('#pool').onchange=e=>{ state.pool=e.target.checked; update(); };
+$('#garden').onchange=e=>{ state.garden=e.target.checked; update(); };
+$('#interior').onclick=()=>{ state.interior=!state.interior; syncControls(); draw(); };
+$('#layer').oninput=e=>{ state.layer=+e.target.value; $('#layerOut').textContent='y = '+state.layer; draw(); };
+$('#interpret').onclick=()=>{
+  const {ch,got} = interpret($('#prompt').value);
+  if(ch.style && ch.style!==state.style){ state.style=ch.style; state.pal={}; }
+  ['rooms','pool','garden','windows','ceiling','size'].forEach(k=>{ if(ch[k]!==undefined) state[k]=ch[k]; });
+  Object.assign(state.pal, ch.pal);
+  $('#understood').textContent = got.length ? 'Entendí: '+got.join(', ')+'. Lo demás viene de las opciones de abajo.'
+    : 'No encontré opciones en el texto. Prueba mencionando estilo, número de habitaciones, piscina o materiales.';
+  update();
+};
+
+let model = null;
+function update(){
+  renderStyles(); renderPalette(); syncControls();
+  model = generate(state);
+  const lay = $('#layer'); lay.min = model.yMin; lay.max = model.yMax;
+  state.layer = model.yMax; lay.value = model.yMax; $('#layerOut').textContent = 'y = '+model.yMax;
+  $('#dims').textContent = `${model.W} × ${model.D} bloques de planta, ${model.yMax} de alto`;
+  // Materiales
+  const counts = {};
+  for(const id of model.B.values()){ if(TERRAIN.has(id)) continue; counts[id]=(counts[id]||0)+1; }
+  let total = 0;
+  const rows = Object.entries(counts).map(([id,n])=>[id, Math.round(n/(CAT[id].per||1))]).sort((a,b)=>b[1]-a[1]);
+  $('#materials').innerHTML = rows.map(([id,n])=>{ total+=n;
+    const st = n>=64 ? `${Math.floor(n/64)} pila${Math.floor(n/64)>1?'s':''}${n%64?' + '+(n%64):''}` : '';
+    return `<tr><td><i style="background:${CAT[id].c}"></i>${CAT[id].n}</td><td class="n">${n}</td><td class="s">${st}</td></tr>`;}).join('');
+  $('#total').textContent = `${total.toLocaleString('es')} bloques en total, sin contar el terreno. Las pilas son de 64.`;
+  $('#rules').innerHTML = model.rules.map(r=>`<li>${r}</li>`).join('');
+  frameCamera(); draw();
+}
+
+// ---------- Render 3D ----------
+const view = $('#view');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
+view.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.add(new THREE.AmbientLight(0xffffff, 0.62));
+const sun = new THREE.DirectionalLight(0xffffff, 0.62); sun.position.set(-0.6,1,-0.45); scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.18); fill.position.set(0.7,0.3,0.8); scene.add(fill);
+const camera = new THREE.PerspectiveCamera(42, 1, 0.5, 2000);
+const orbit = {theta: Math.PI-0.65, phi: 0.95, r: 60, target: new THREE.Vector3()};
+function placeCam(){
+  const {theta,phi,r,target} = orbit;
+  camera.position.set(target.x + r*Math.sin(phi)*Math.sin(theta), target.y + r*Math.cos(phi), target.z + r*Math.sin(phi)*Math.cos(theta));
+  camera.lookAt(target);
+}
+function frameCamera(){
+  orbit.target.set(...model.center);
+  orbit.r = Math.max(model.W, model.D)*1.75 + 10;
+  placeCam();
+}
+const GEO = {
+  full: new THREE.BoxGeometry(1,1,1),
+  slabTop: new THREE.BoxGeometry(1,0.5,1).translate(0,0.25,0),
+  small: new THREE.BoxGeometry(0.4,0.55,0.4).translate(0,-0.22,0),
+  door: new THREE.BoxGeometry(1,1,0.22),
+  bed: new THREE.BoxGeometry(1,0.56,1).translate(0,-0.22,0),
+};
+let meshes = [];
+function hash(x,y,z){ let h = (x*374761393 + y*668265263 + z*2147483647) | 0; h = (h ^ (h>>>13)) * 1274126177; return ((h ^ (h>>>16)) >>> 0) / 4294967295; }
+function draw(){
+  if(!model) return;
+  meshes.forEach(m=>{ scene.remove(m); m.material.dispose(); }); meshes = [];
+  const groups = {};
+  for(const [k,id] of model.B){
+    const [x,y,z] = k.split(',').map(Number);
+    if(y > state.layer) continue;
+    if(state.interior && y > model.H) continue;
+    (groups[id] = groups[id] || []).push([x,y,z]);
+  }
+  const dummy = new THREE.Object3D(), col = new THREE.Color();
+  for(const id in groups){
+    const def = CAT[id], list = groups[id];
+    const t = def.t;
+    const mat = new THREE.MeshLambertMaterial({color:0xffffff,
+      transparent: t==='glass'||t==='water', opacity: t==='glass'?0.42:(t==='water'?0.72:1),
+      depthWrite: !(t==='glass'||t==='water'),
+      emissive: t==='light'? new THREE.Color(def.c) : new THREE.Color(0), emissiveIntensity: t==='light'?0.55:0});
+    const mesh = new THREE.InstancedMesh(GEO[def.s||'full'], mat, list.length);
+    const base = new THREE.Color(def.c);
+    list.forEach(([x,y,z],i)=>{
+      dummy.position.set(x,y,z); dummy.updateMatrix(); mesh.setMatrixAt(i,dummy.matrix);
+      const j = 0.93 + hash(x,y,z)*0.11; col.copy(base).multiplyScalar(j); mesh.setColorAt(i,col);
+    });
+    if(t==='glass'||t==='water') mesh.renderOrder = 2;
+    scene.add(mesh); meshes.push(mesh);
+  }
+  render();
+}
+let pending = false;
+function render(){ if(pending) return; pending = true; requestAnimationFrame(()=>{ pending=false; renderer.render(scene,camera); }); }
+function resize(){
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w,h,false); camera.aspect = w/Math.max(1,h); camera.updateProjectionMatrix(); render();
+}
+new ResizeObserver(resize).observe(view);
+
+// Controles de cámara
+const ptrs = new Map(); let pinch0 = 0, r0 = 0;
+const cv = renderer.domElement;
+cv.addEventListener('pointerdown', e=>{ cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch0=Math.hypot(a.x-b.x,a.y-b.y); r0=orbit.r; } });
+cv.addEventListener('pointermove', e=>{
+  if(!ptrs.has(e.pointerId)) return;
+  const prev = ptrs.get(e.pointerId); const dx=e.clientX-prev.x, dy=e.clientY-prev.y;
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===1){ orbit.theta -= dx*0.008; orbit.phi = Math.min(1.5, Math.max(0.12, orbit.phi - dy*0.006)); }
+  else if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); if(pinch0) orbit.r = Math.min(220, Math.max(12, r0*pinch0/d)); }
+  placeCam(); render();
+});
+const endPtr = e=>{ ptrs.delete(e.pointerId); if(ptrs.size<2) pinch0=0; };
+cv.addEventListener('pointerup', endPtr); cv.addEventListener('pointercancel', endPtr);
+cv.addEventListener('wheel', e=>{ e.preventDefault(); orbit.r = Math.min(220, Math.max(12, orbit.r*(1+Math.sign(e.deltaY)*0.08))); placeCam(); render(); }, {passive:false});
+
+// Arranque: interpreta el ejemplo
+$('#interpret').click();
+resize();
+</script>
+</body>
+</html>

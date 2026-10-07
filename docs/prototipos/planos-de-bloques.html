@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planos de bloques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#e9eef5; --field:#f8fafd; --line:#1d4f91; --line-soft:rgba(29,79,145,.55); --grid:rgba(29,79,145,.07); --grid2:rgba(29,79,145,.15);
+  --red:#cf3f2c; --sheet:#ffffff; --ink:#13294b; --muted:#566b8c; --rule:#cdd8e8; --chip:#eef3fa;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --page:#0f2b52; --field:#1b4a86; --line:#eaf2ff; --line-soft:rgba(234,242,255,.55); --grid:rgba(234,242,255,.06); --grid2:rgba(234,242,255,.13);
+    --red:#ff8a78; --sheet:#143a6c; --ink:#eef4ff; --muted:#a9bfdf; --rule:#2c5791; --chip:#1d4a83;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#0f2b52; --field:#1b4a86; --line:#eaf2ff; --line-soft:rgba(234,242,255,.55); --grid:rgba(234,242,255,.06); --grid2:rgba(234,242,255,.13);
+  --red:#ff8a78; --sheet:#143a6c; --ink:#eef4ff; --muted:#a9bfdf; --rule:#2c5791; --chip:#1d4a83;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--page);color:var(--ink);font:16px/1.55 Barlow,system-ui,sans-serif}
+a{color:inherit}
+.tech{font-family:"Barlow Condensed",Barlow,system-ui,sans-serif}
+.hand{font-family:"Architects Daughter","Barlow",cursive}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 20px 48px}
+
+/* barra */
+.bar{display:flex;gap:14px 20px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand svg{width:30px;height:30px}
+.brand b{font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.02em}
+.tools{display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;min-width:280px}
+.search{position:relative;flex:1;max-width:360px}
+.search input{width:100%;font:inherit;font-size:15px;padding:9px 12px;border:1.5px solid var(--line-soft);border-radius:4px;background:var(--field);color:var(--ink)}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{outline:none;border-color:var(--red)}
+.sugg{position:absolute;z-index:9;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--sheet);border:1.5px solid var(--line-soft);border-radius:4px;max-height:340px;overflow:auto}
+.sugg:empty{display:none}
+.sugg li a{display:flex;align-items:center;gap:10px;padding:6px 8px;text-decoration:none;border-radius:3px}
+.sugg li a:hover,.sugg li a:focus,.sugg li a.on{background:var(--chip);outline:none}
+.sugg img{width:22px;height:22px;image-rendering:pixelated}
+.sugg small{margin-left:auto;color:var(--muted)}
+.lang{display:inline-flex;border:1.5px solid var(--line-soft);border-radius:4px;overflow:hidden}
+.lang button{font:600 14px/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;padding:9px 11px;background:transparent;color:var(--ink);border:0;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--line);color:var(--field)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+/* lámina */
+.sheetwrap{margin-top:18px;background:var(--field);border:2px solid var(--line);padding:10px;position:relative}
+.plate{position:relative;border:1px solid var(--line-soft);
+  background-color:var(--field);
+  background-image:linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px),
+                   linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:96px 96px,96px 96px,16px 16px,16px 16px;
+  padding:26px 28px 24px}
+.zones{position:absolute;inset:0;pointer-events:none;font:600 11px/1 "Barlow Condensed",sans-serif;color:var(--line-soft)}
+.zones span{position:absolute}
+.plate-top{display:grid;grid-template-columns:1fr minmax(300px,380px);gap:24px;align-items:end}
+.drawing{position:relative;min-height:330px}
+.drawing svg{width:100%;height:auto;display:block;overflow:visible}
+.drawing .dim{stroke:var(--line);stroke-width:1.2;fill:none}
+.drawing .dimt{fill:var(--line);font:600 15px "Barlow Condensed",sans-serif}
+.drawing .note{fill:var(--line);font:16px "Architects Daughter",cursive}
+.drawing .lead{stroke:var(--line);stroke-width:1;fill:none}
+.drawing .redline{stroke:var(--red);stroke-width:1.5;fill:none}
+.drawing .redt{fill:var(--red);font:16px "Architects Daughter",cursive}
+
+/* cajetín */
+.cajetin{border:2px solid var(--line);display:grid;grid-template-columns:1fr 1fr;background:var(--field)}
+.cajetin>div{border:1px solid var(--line-soft);padding:6px 9px;min-width:0}
+.cajetin .full{grid-column:1/-1}
+.cajetin small{display:block;margin-bottom:2px;font:500 12px/1.2 "Barlow Condensed",sans-serif;color:var(--muted);letter-spacing:.02em}
+.cajetin b{display:block;font:600 17px/1.25 "Barlow Condensed",sans-serif;overflow-wrap:anywhere}
+.cajetin h1{margin:0;font:700 clamp(28px,4vw,40px)/1.05 "Barlow Condensed",sans-serif}
+.cajetin h1+span{display:block;color:var(--muted);font:500 16px "Barlow Condensed",sans-serif;margin-top:2px}
+
+/* bloques de la lámina */
+.block{margin-top:30px}
+.block>header{display:flex;align-items:baseline;gap:12px;border-bottom:1.5px solid var(--line);padding-bottom:6px;margin-bottom:14px}
+.block>header h2{margin:0;font:700 24px/1 "Barlow Condensed",sans-serif}
+.block>header p{margin:0;color:var(--muted);font-size:14px}
+.recipes{display:flex;flex-wrap:wrap;gap:16px}
+.recipe{border:1.5px dashed var(--line-soft);padding:12px 14px 10px;background:color-mix(in srgb,var(--field) 70%,transparent)}
+.recipe .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.recipe{max-width:100%}
+.g3{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);border:1.5px solid var(--line)}
+.g3 div{border:1px solid var(--line-soft);display:grid;place-items:center}
+.g3 div.hit{outline:2px solid var(--red);outline-offset:-3px}
+.g3 img,.part img{width:32px;height:32px;image-rendering:pixelated}
+.part{width:54px;height:54px;border:1.5px solid var(--line);display:grid;place-items:center;position:relative;text-decoration:none}
+.part.hit{outline:2px solid var(--red);outline-offset:2px}
+.part .n{position:absolute;right:3px;bottom:1px;font:700 13px "Barlow Condensed",sans-serif}
+.station{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:96px;text-align:center}
+.station svg{width:64px;height:24px}
+.station span{font:600 14px/1.15 "Barlow Condensed",sans-serif}
+.station em{font:15px/1.15 "Architects Daughter",cursive;color:var(--red);font-style:normal}
+.recipe figcaption{margin-top:8px;font:500 13px "Barlow Condensed",sans-serif;color:var(--muted)}
+.empty{color:var(--muted);font-style:italic;margin:0}
+
+/* mapa de usos */
+.usegrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+.usemap svg{width:100%;height:auto;display:block}
+.usemap .ln{stroke:var(--line-soft);stroke-width:1.2;fill:none}
+.usemap .ln.alt{stroke-dasharray:5 4}
+.usemap .nd rect{fill:var(--field);stroke:var(--line);stroke-width:1.5}
+.usemap .nd:hover rect,.usemap .nd:focus rect{stroke:var(--red);stroke-width:2.5}
+.usemap .nd{cursor:pointer}
+.usemap .nd:focus{outline:none}
+.usemap .ctr rect{fill:var(--field);stroke:var(--red);stroke-width:2.5}
+.usemap .lbl{fill:var(--ink);font:500 12px "Barlow Condensed",sans-serif;text-anchor:middle}
+.bom{border:1.5px solid var(--line)}
+.bom table{width:100%;border-collapse:collapse;font-size:14px}
+.bom th{font:600 13px "Barlow Condensed",sans-serif;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1.5px solid var(--line)}
+.bom td{padding:5px 8px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+.bom td a{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.bom td a:hover{text-decoration:underline}
+.bom img{width:22px;height:22px;image-rendering:pixelated}
+.bom .scroll{max-height:420px;overflow:auto}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:26px;border-top:1.5px solid var(--line-soft);vertical-align:middle;margin-right:6px}
+.legend i.alt{border-top-style:dashed}
+
+/* anexos */
+.annexes{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:22px}
+.annex{background:var(--sheet);border:1.5px solid var(--rule);padding:14px 16px 12px}
+.annex.wide{grid-column:1/-1}
+.annex h3{margin:0 0 10px;font:700 19px/1.1 "Barlow Condensed",sans-serif;display:flex;gap:10px;align-items:baseline}
+.annex h3 span{font:600 13px "Barlow Condensed",sans-serif;color:var(--red);border:1.5px solid var(--red);padding:1px 5px}
+.annex h4{margin:14px 0 6px;font:600 15px "Barlow Condensed",sans-serif;color:var(--muted)}
+dl.spec{display:grid;grid-template-columns:max-content 1fr;gap:5px 18px;margin:0;font-size:15px}
+dl.spec dt{color:var(--muted)} dl.spec dd{margin:0;font-weight:500}
+.annex table{width:100%;border-collapse:collapse;font-size:14px}
+.annex th{font:600 13px "Barlow Condensed",sans-serif;color:var(--muted);text-align:left;padding:5px 10px 5px 0;border-bottom:1.5px solid var(--rule)}
+.annex td{padding:5px 10px 5px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.annex td a{text-decoration:underline;text-decoration-color:var(--line-soft)}
+.annex .scroll{overflow-x:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.chips li{background:var(--chip);padding:4px 9px;font-size:14px;border-radius:3px}
+.chips li small{color:var(--muted)}
+.foot{margin-top:22px;color:var(--muted);font-size:13px}
+@media (max-width:860px){
+  .plate{padding:20px 14px}
+  .plate-top,.usegrid{grid-template-columns:1fr}
+  .drawing{min-height:0;margin:0 -8px}
+  .g3{grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,40px)}
+  .block>header{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <a class="brand" href="#cobblestone" aria-label="Planos de bloques">
+      <svg viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="2" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 11h26M2 19h26M11 2v26M19 2v26" stroke="currentColor" stroke-width="1"/><rect x="11" y="11" width="8" height="8" fill="currentColor"/></svg>
+      <b id="brandName"></b>
+    </a>
+    <div class="tools">
+      <div class="search">
+        <input id="q" type="search" autocomplete="off" aria-controls="sugg">
+        <ul class="sugg" id="sugg" role="listbox"></ul>
+      </div>
+      <div class="lang" role="group" aria-label="Idioma / Language"><button data-l="es">ES</button><button data-l="en">EN</button></div>
+    </div>
+  </div>
+  <div id="app"></div>
+  <p class="foot" id="foot"></p>
+</div>
+<script>
+const F = {}; // Datos 26.1 retirados (1,6 MB). En Craftchemy vienen del pipeline: data/fichas.json
+// ---------------------------------------------------------------- idioma
+const STR = {
+ es:{brand:'Planos de bloques', ph:'Busca un objeto: roca, hierro, arco…', none:'Sin resultados. Prueba en español o en inglés.',
+  object:'Objeto', id:'Identificador', sheet:'Lámina', of:'de', version:'Versión', scale:'Escala', scaleV:'1 bloque = 1 m', rarity:'Rareza', stack:'Apilable',
+  fab:'Planos de fabricación', fabSub:'Cómo se fabrica este objeto', noFab:'Este objeto no se fabrica: se consigue de otra forma. Mira el anexo de obtención.',
+  produces:'produce', uses:'Mapa de usos', usesSub:'Lo que puedes fabricar con este objeto. Toca una pieza para abrir su lámina.',
+  noUses:'No es ingrediente de ninguna receta.', bom:'Lista de piezas', result:'Resultado', where:'Dónde', qty:'Cant.',
+  legCraft:'Mesa de crafteo', legOther:'Otras estaciones',
+  A1:'Especificaciones', A2:'Obtención', A3:'Encantamientos posibles', A4:'Comercio y otros usos',
+  data:{apilable:'Se apila de', durabilidad:'Durabilidad', rareza:'Rareza', fuego:'Resistente al fuego', encantabilidad:'Encantabilidad', repara:'Se repara con',
+    dano:'Daño de ataque', vel:'Velocidad de ataque', arm:'Armadura', dur:'Dureza de armadura', emp:'Resistencia al empuje', ran:'Ranura',
+    hambre:'Hambre que recupera', sat:'Saturación', siempre:'Se come aunque estés lleno', bdur:'Dureza del bloque', bres:'Resistencia a explosiones', luz:'Luz que emite',
+    pica:'Se pica con', min:'Herramienta mínima', yes:'sí', no:'no'},
+  mine:'Minando', mobs:'De criaturas', vill:'Comprando a aldeanos', chests:'En cofres de estructuras', arch:'Arqueología', shear:'Esquilando', brush:'Cepillando', harvest:'Cosechando', other:'Otras fuentes',
+  block:'Bloque', mob:'Criatura', amount:'Cantidad', conds:'Condiciones', villager:'Aldeano', level:'Nivel', get:'Recibes', pay:'Pagas', source:'Fuente', chance:'Prob. por tirada',
+  sell:'Se lo vendes a', give:'Le das', receive:'Recibes', otherUses:'Otros usos', noObtain:'No se consigue en supervivencia por estas vías: puede ser un objeto creativo o de comandos.',
+  noA4:'Ni se comercia ni tiene usos especiales.', maxLv:'máx.', curse:'maldición', treasure:'solo de tesoro',
+  chanceNote:'La probabilidad es por cada tirada del cofre, no la probabilidad total de encontrarlo.',
+  foot:'Datos oficiales de la versión 26.1 (misode/mcmeta, PrismarineJS). Íconos dibujados por esta herramienta. No es un producto oficial de Minecraft ni está afiliado con Mojang.',
+  notes:{stack:n=>`pila de ${n}`, hard:n=>`dureza ${n}`, res:n=>`resiste explosiones: ${n}`, tool:t=>`se pica con ${t}`, dmg:n=>`daño ${n}`, dur:n=>`${n} usos`, food:n=>`recupera ${n} de hambre`, arm:n=>`+${n} armadura`, block:'1 bloque', item:'objeto', light:n=>`emite luz ${n}`, uses:n=>`ingrediente de ${n} recetas`},
+  tools:{pickaxe:'pico',axe:'hacha',shovel:'pala',hoe:'azada'}, lv:{stone:'de piedra o mejor',iron:'de hierro o mejor',diamond:'de diamante o mejor'},
+  slots:{head:'cabeza',chest:'pecho',legs:'piernas',feet:'pies',body:'cuerpo'}, rar:{common:'común',uncommon:'poco común',rare:'raro',epic:'épico'},
+  st:{mesa_de_crafteo:'Mesa de crafteo',horno:'Horno',alto_horno:'Alto horno',ahumador:'Ahumador',fogata:'Fogata',cortapiedras:'Cortapiedras',mesa_de_herreria:'Mesa de herrería'},
+  cond:{toque_de_seda:'con Toque de seda',sin_toque_de_seda:'sin Toque de seda',tijeras:'con tijeras',matado_por_jugador:'solo si lo mata un jugador',fortuna:'Fortuna aumenta la cantidad',botin:'Botín aumenta la cantidad',cocido_si_muere_en_llamas:'sale cocido si muere en llamas',puede_venir_encantado:'puede venir encantado',estado_del_bloque:'depende del estado del bloque',en_llamas:'si está en llamas',prob:p=>`${p}% de probabilidad`},
+  esp:{material_de_adorno:'Material de adorno de armadura en la mesa de herrería',pago_del_faro:'Pago para activar el faro',atrae_piglins:'Atrae a los piglins',combustible_de_destilacion:'Combustible del soporte para pociones',combustible_de_vagoneta:'Combustible de la vagoneta con horno',combustible_de_encantamiento:'Combustible de la mesa de encantamientos'},
+  smith:{plantilla:'plantilla',base:'base',adicion:'adición'}, any:'cualquier', sec:'s', xp:'XP',
+  extra:{cobblestone:'Generador de roca: cuando la lava fluye sobre agua, se forma roca que puedes picar sin fin.', obsidian:'Se forma cuando el agua toca una fuente de lava.'}
+ },
+ en:{brand:'Block Blueprints', ph:'Search an item: cobblestone, iron, bow…', none:'No results. Try English or Spanish.',
+  object:'Object', id:'Identifier', sheet:'Sheet', of:'of', version:'Version', scale:'Scale', scaleV:'1 block = 1 m', rarity:'Rarity', stack:'Stacks to',
+  fab:'Fabrication drawings', fabSub:'How this item is made', noFab:'This item is not crafted: you get it another way. See the sourcing annex.',
+  produces:'makes', uses:'Usage map', usesSub:'What you can make with this item. Tap a part to open its sheet.',
+  noUses:'It is not an ingredient in any recipe.', bom:'Parts list', result:'Result', where:'Where', qty:'Qty',
+  legCraft:'Crafting table', legOther:'Other stations',
+  A1:'Specifications', A2:'Sourcing', A3:'Possible enchantments', A4:'Trading and other uses',
+  data:{apilable:'Stacks to', durabilidad:'Durability', rareza:'Rarity', fuego:'Fire resistant', encantabilidad:'Enchantability', repara:'Repaired with',
+    dano:'Attack damage', vel:'Attack speed', arm:'Armor', dur:'Armor toughness', emp:'Knockback resistance', ran:'Slot',
+    hambre:'Hunger restored', sat:'Saturation', siempre:'Edible when full', bdur:'Block hardness', bres:'Blast resistance', luz:'Light emitted',
+    pica:'Mined with', min:'Minimum tool', yes:'yes', no:'no'},
+  mine:'Mining', mobs:'From mobs', vill:'Buying from villagers', chests:'In structure chests', arch:'Archaeology', shear:'Shearing', brush:'Brushing', harvest:'Harvesting', other:'Other sources',
+  block:'Block', mob:'Mob', amount:'Amount', conds:'Conditions', villager:'Villager', level:'Level', get:'You get', pay:'You pay', source:'Source', chance:'Chance per roll',
+  sell:'Sell it to', give:'You give', receive:'You get', otherUses:'Other uses', noObtain:'Not obtainable in survival through these routes: it may be a creative or command item.',
+  noA4:'Not traded and no special uses.', maxLv:'max', curse:'curse', treasure:'treasure only',
+  chanceNote:'Chance is per roll of the chest, not the total chance of finding it.',
+  foot:'Official data from version 26.1 (misode/mcmeta, PrismarineJS). Icons drawn by this tool. Not an official Minecraft product and not affiliated with Mojang.',
+  notes:{stack:n=>`stack of ${n}`, hard:n=>`hardness ${n}`, res:n=>`blast resistance ${n}`, tool:t=>`mined with a ${t}`, dmg:n=>`${n} damage`, dur:n=>`${n} uses`, food:n=>`restores ${n} hunger`, arm:n=>`+${n} armor`, block:'1 block', item:'item', light:n=>`light level ${n}`, uses:n=>`used in ${n} recipes`},
+  tools:{pickaxe:'pickaxe',axe:'axe',shovel:'shovel',hoe:'hoe'}, lv:{stone:'stone or better',iron:'iron or better',diamond:'diamond or better'},
+  slots:{head:'head',chest:'chest',legs:'legs',feet:'feet',body:'body'}, rar:{common:'common',uncommon:'uncommon',rare:'rare',epic:'epic'},
+  st:{mesa_de_crafteo:'Crafting table',horno:'Furnace',alto_horno:'Blast furnace',ahumador:'Smoker',fogata:'Campfire',cortapiedras:'Stonecutter',mesa_de_herreria:'Smithing table'},
+  cond:{toque_de_seda:'with Silk Touch',sin_toque_de_seda:'without Silk Touch',tijeras:'with shears',matado_por_jugador:'only if killed by a player',fortuna:'Fortune increases the amount',botin:'Looting increases the amount',cocido_si_muere_en_llamas:'drops cooked if it dies on fire',puede_venir_encantado:'may come enchanted',estado_del_bloque:'depends on block state',en_llamas:'if on fire',prob:p=>`${p}% chance`},
+  esp:{material_de_adorno:'Armor trim material at the smithing table',pago_del_faro:'Payment to power a beacon',atrae_piglins:'Attracts piglins',combustible_de_destilacion:'Brewing stand fuel',combustible_de_vagoneta:'Furnace minecart fuel',combustible_de_encantamiento:'Enchanting table fuel'},
+  smith:{plantilla:'template',base:'base',adicion:'addition'}, any:'any', sec:'s', xp:'XP',
+  extra:{cobblestone:'Cobblestone generator: when lava flows into water it forms cobblestone you can mine endlessly.', obsidian:'Forms when water touches a lava source.'}
+ }
+};
+// fuentes de botín
+const SRC = {
+ abandoned_mineshaft:['Mina abandonada','Abandoned mineshaft'], ancient_city:['Ciudad antigua','Ancient city'], ancient_city_ice_box:['Ciudad antigua (nevera)','Ancient city ice box'],
+ armadillo_shed:['Muda del armadillo','Armadillo shedding'], bastion_bridge:['Bastión (puente)','Bastion bridge'], bastion_hoglin_stable:['Bastión (establo de hoglins)','Bastion hoglin stable'],
+ bastion_other:['Bastión','Bastion'], bastion_treasure:['Bastión (tesoro)','Bastion treasure'], beehive:['Colmena','Beehive'], buried_treasure:['Tesoro enterrado','Buried treasure'],
+ cat_morning_gift:['Regalo matutino del gato','Cat morning gift'], chicken_lay:['Huevo de gallina','Chicken laying'], desert_pyramid:['Templo del desierto','Desert pyramid'], desert_well:['Pozo del desierto','Desert well'],
+ end_city_treasure:['Ciudad del End','End city'], 'fishing/fish':['Pesca (peces)','Fishing (fish)'], 'fishing/junk':['Pesca (basura)','Fishing (junk)'], 'fishing/treasure':['Pesca (tesoro)','Fishing (treasure)'],
+ igloo_chest:['Iglú','Igloo'], jungle_temple:['Templo de la jungla','Jungle temple'], jungle_temple_dispenser:['Templo de la jungla (dispensador)','Jungle temple dispenser'],
+ nether_bridge:['Fortaleza del Nether','Nether fortress'], ocean_ruin_cold:['Ruinas oceánicas frías','Cold ocean ruins'], ocean_ruin_warm:['Ruinas oceánicas cálidas','Warm ocean ruins'],
+ panda_sneeze:['Estornudo de panda','Panda sneeze'], piglin_bartering:['Trueque con piglins','Piglin bartering'], pillager_outpost:['Puesto de saqueadores','Pillager outpost'], ruined_portal:['Portal en ruinas','Ruined portal'],
+ shipwreck_map:['Naufragio (mapas)','Shipwreck map chest'], shipwreck_supply:['Naufragio (suministros)','Shipwreck supply chest'], shipwreck_treasure:['Naufragio (tesoro)','Shipwreck treasure'],
+ simple_dungeon:['Mazmorra','Dungeon'], sniffer_digging:['Excavación del husmeador','Sniffer digging'], snow_golem:['Gólem de nieve','Snow golem'], spawn_bonus_chest:['Cofre bonus inicial','Bonus chest'],
+ stronghold_corridor:['Fortaleza (pasillo)','Stronghold corridor'], stronghold_crossing:['Fortaleza (cruce)','Stronghold crossing'], stronghold_library:['Fortaleza (biblioteca)','Stronghold library'],
+ sweet_berry_bush:['Arbusto de bayas dulces','Sweet berry bush'], cave_vine:['Enredadera de cueva','Cave vines'], trail_ruins_common:['Ruinas de senderos (común)','Trail ruins (common)'], trail_ruins_rare:['Ruinas de senderos (raro)','Trail ruins (rare)'],
+ turtle_grow:['Tortuga al crecer','Turtle growing up'], underwater_ruin_big:['Ruina submarina grande','Big underwater ruin'], underwater_ruin_small:['Ruina submarina pequeña','Small underwater ruin'],
+ woodland_mansion:['Mansión del bosque','Woodland mansion'], armadillo:['Armadillo','Armadillo'], bogged:['Empantanado','Bogged'], 'mooshroom/brown':['Champiñaca marrón','Brown mooshroom'], 'mooshroom/red':['Champiñaca roja','Red mooshroom'],
+};
+function srcName(s){
+  const L = LANG==='es'?0:1;
+  if(SRC[s]) return SRC[s][L];
+  let m;
+  if((m = s.match(/^village\/village_(.+)$/))) return (LANG==='es'?'Aldea: ':'Village: ') + m[1].replace(/_/g,' ');
+  if((m = s.match(/^trial_chambers\/(.+)$/))) return (LANG==='es'?'Cámaras de prueba: ':'Trial chambers: ') + m[1].replace(/_/g,' ');
+  if((m = s.match(/^hero_of_the_village\/(.+)_gift$/))) { const p = F[m[1]] ? null : null; return (LANG==='es'?'Héroe de la aldea: regalo de ':'Hero of the village: gift from ') + m[1].replace(/_/g,' '); }
+  if((m = s.match(/^sheep\/(.+)$/))) return (LANG==='es'?'Oveja ':'Sheep, ') + m[1].replace(/_/g,' ');
+  return s.replace(/_/g,' ').replace(/\//g,' › ');
+}
+let LANG='es';
+try{ const v=localStorage.getItem('bp-lang'); if(v==='es'||v==='en') LANG=v; else if((navigator.language||'').toLowerCase().startsWith('en')) LANG='en'; }catch(e){}
+const S = () => STR[LANG];
+const N = id => F[id] ? F[id].nombre[LANG] : id.replace(/_/g,' ');
+const low = s => s.charAt(0).toLowerCase()+s.slice(1);
+const IDS = Object.keys(F).sort();
+const SHEETNO = Object.fromEntries(IDS.map((id,i)=>[id,i+1]));
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- Plantillas de íconos por familia (dibujos originales) ----------
+const PAL = {W:'#a37b46',w:'#6b4f2c',S:'#8d8d8d',s:'#5c5c5c',R:'#d42a20',r:'#80150f',K:'#262626',G:'#e8bb3d',I:'#dadada',i:'#9a9a9a',
+  B:'#3d70d4',P:'#7b3fb0',F:'#f08a2a',Y:'#f7d66b',O:'#2b2140',N:'#6cbf4a',C:'#4fd8d0',T:'#f2f2f2',E:'#8c4d2c'};
+const M = s => s.trim().split('\n').map(r=>r.trim().padEnd(16,'.').slice(0,16));
+const MAPS = {
+ crafting_table: M(`
+................
+.wwwwwwwwwwwwww.
+.wWWwWWwWWwWWWw.
+.wwwwwwwwwwwwww.
+.wWWwWWwWWwWWWw.
+.wwwwwwwwwwwwww.
+.WWWWWWWWWWWWWW.
+.WIIIWWWWWWKKWW.
+.WWIWWWWWWWKKWW.
+.WWIWWWWWWWWKWW.
+.WWWWWWWWWWWKWW.
+.WwwwwwwwwwwwwW.
+.WWWWWWWWWWWWWW.
+.WwwwwwwwwwwwwW.
+.wwwwwwwwwwwwww.
+................`),
+ furnace: M(`
+................
+.ssssssssssssss.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.sSSSSSSSSSSSSs.
+.sSSSKKKKKKSSSs.
+.sSSKKKKKKKKSSs.
+.sSSKKKYYKKKSSs.
+.sSSKKFYYFKKSSs.
+.sSSKFFFFFFKSSs.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.sSSSSSSSSSSSSs.
+.sSSSSSSSSSSSSs.
+.ssssssssssssss.
+................`),
+ stonecutter: M(`
+................
+................
+.......II.......
+.....IIiiII.....
+....IiIIIIiI....
+....IIIKKIII....
+.SSSSSSKKSSSSSS.
+.sSSSSSSSSSSSSs.
+.sSsSsSsSsSsSsS.
+.sSSSSSSSSSSSSs.
+.wwwwwwwwwwwwww.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wwwwwwwwwwwwww.
+................
+................`),
+ smithing_table: M(`
+................
+................
+.KKKKKKKKKKKKKK.
+.KiiiiiiiiiiiiK.
+.KKKKKKKKKKKKKK.
+..wWWWWWWWWWWw..
+..wWIIWWWWIIWw..
+..wWIIWWWWIIWw..
+..wWWWWWWWWWWw..
+..wwwwwwwwwwww..
+..wW........Ww..
+..wW........Ww..
+..wW........Ww..
+.wwWW......WWww.
+.wwww......wwww.
+................`),
+ anvil: M(`
+................
+................
+................
+.ssssssssssssss.
+.sSSSSSSSSSSSSs.
+.ssssssssssssss.
+.....sSSSSs.....
+......sSSs......
+......sSSs......
+.....sSSSSs.....
+...ssSSSSSSss...
+...sSSSSSSSSs...
+...ssssssssss...
+................
+................
+................`),
+ enchanting_table: M(`
+................
+....rRRRRRRr....
+....TTTTTTTT....
+....rRRRRRRr....
+.RRRRRRRRRRRRRR.
+.rCrrrrrrrrrrCr.
+.OOOOOOOOOOOOOO.
+.OKOOOOOOOOOOKO.
+.OOOOOOOOOOOOOO.
+.OOOKOOOOOOKOOO.
+.OOOOOOOOOOOOOO.
+.OKOOOOOOOOOOKO.
+.OOOOOOOOOOOOOO.
+.OOOOOOOOOOOOOO.
+.KKKKKKKKKKKKKK.
+................`),
+ brewing_stand: M(`
+................
+.......ww.......
+.......WW.......
+.......WW.......
+.....iiWWii.....
+...ii..WW..ii...
+..i....WW....i..
+.TT....WW....TT.
+.TBT...WW...TBT.
+.TBT..TTTT..TBT.
+.TTT..TBBT..TTT.
+......TBBT......
+......TTTT......
+..ssssssssssss..
+..ssssssssssss..
+................`),
+ chest: M(`
+................
+................
+.wwwwwwwwwwwwww.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wwwwwwKKwwwwww.
+.wWWWWWIIWWWWWw.
+.wWWWWWKKWWWWWw.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wwwwwwwwwwwwww.
+................
+................`),
+ barrel: M(`
+................
+.wwwwwwwwwwwwww.
+.wWWiWWWWWWiWWw.
+.wWWiWWWWWWiWWw.
+.wWWiWWWWWWiWWw.
+.wWWiWWWWWWiWWw.
+.wwwiwwwwwwiwww.
+.wWWiWWWWWWiWWw.
+.wWWiWWWWWWiWWw.
+.wWWiWWWWWWiWWw.
+.wwwiwwwwwwiwww.
+.wWWiWWWWWWiWWw.
+.wWWiWWWWWWiWWw.
+.wWWiWWWWWWiWWw.
+.wwwwwwwwwwwwww.
+................`),
+ bookshelf: M(`
+................
+.wwwwwwwwwwwwww.
+.wWWWWWWWWWWWWw.
+.wwwwwwwwwwwwww.
+.wRBNYRBTNRBYNw.
+.wRBNYRBTNRBYNw.
+.wRBNYRBTNRBYNw.
+.wwwwwwwwwwwwww.
+.wBNRTBYRNBTRYw.
+.wBNRTBYRNBTRYw.
+.wBNRTBYRNBTRYw.
+.wwwwwwwwwwwwww.
+.wWWWWWWWWWWWWw.
+.wwwwwwwwwwwwww.
+................
+................`),
+ redstone: M(`
+................
+................
+................
+.......r........
+......rRr.......
+.....rRRRr..r...
+....rRRYRRr.rRr.
+...rRRRRRRRrRRr.
+..rRRYRRRRRRRRr.
+..rRRRRRRRRYRRr.
+...rrRRRRRRRRr..
+.....rrrrrrrr...
+................
+................
+................
+................`),
+ torch: M(`
+................
+................
+.......XX.......
+......XLXX......
+......XXXX......
+......DXXD......
+.......WW.......
+.......WW.......
+.......WW.......
+.......wW.......
+.......WW.......
+.......wW.......
+.......WW.......
+.......ww.......
+................
+................`),
+ lever: M(`
+................
+................
+................
+...........ww...
+..........wWw...
+.........wWw....
+........wWw.....
+.......wWw......
+......wWw.......
+.....wWw........
+....sssssss.....
+...sSSSSSSSs....
+...sSSSSSSSs....
+...sssssssss....
+................
+................`),
+ repeater: M(`
+................
+................
+................
+................
+....rR....rR....
+....RR....RR....
+....wW....wW....
+.ssssssssssssss.
+.sSSSSSRRSSSSSs.
+.sSRRRRRRRRRRSs.
+.sSSSSSRRSSSSSs.
+.ssssssssssssss.
+................
+................
+................
+................`),
+ comparator: M(`
+................
+................
+................
+................
+...rR..rR..rR...
+...RR..RR..RR...
+...wW..wW..wW...
+.ssssssssssssss.
+.sSSSSSRRSSSSSs.
+.sSRRRRRRRRRRSs.
+.sSSSSSRRSSSSSs.
+.ssssssssssssss.
+................
+................
+................
+................`),
+ piston: M(`
+................
+.XXXXXXXXXXXXXX.
+.XDXXXXXXXXXXDX.
+.XXXXXXXXXXXXXX.
+.ssssssssssssss.
+.sSSSSSiiSSSSSs.
+.sSSSSiIIiSSSSs.
+.sSSSSiIIiSSSSs.
+.sSSSSSiiSSSSSs.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.sSSSSSSSSSSSSs.
+.sSSSSSSSSSSSSs.
+.ssssssssssssss.
+................
+................`),
+ observer: M(`
+................
+.ssssssssssssss.
+.sSSSSSSSSSSSSs.
+.sSKKKSSSSKKKSs.
+.sSKRKSSSSKRKSs.
+.sSKKKSSSSKKKSs.
+.sSSSSSSSSSSSSs.
+.sSSSSSSSSSSSSs.
+.sSSKKKKKKKKSSs.
+.sSSKSSSSSSKSSs.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.sSSSSSSSSSSSSs.
+.ssssssssssssss.
+................
+................`),
+ dispenser: M(`
+................
+.ssssssssssssss.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.sSSSSKKKKSSSSs.
+.sSSSKKKKKKSSSs.
+.sSSSKKKKKKSSSs.
+.sSSSSKKKKSSSSs.
+.sSSSSSSSSSSSSs.
+.sSSSSSSSSSSSSs.
+.sSSKKKKKKKKSSs.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.ssssssssssssss.
+................
+................`),
+ dropper: M(`
+................
+.ssssssssssssss.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.sSSSSSSSSSSSSs.
+.sSSKKKKKKKKSSs.
+.sSSKKKKKKKKSSs.
+.sSSSSSSSSSSSSs.
+.sSSSSSSSSSSSSs.
+.sSSSSSSSSSSSSs.
+.sSSSKKKKKKSSSs.
+.sSSSSSSSSSSSSs.
+.sSsSSSSSSSSsSs.
+.ssssssssssssss.
+................
+................`),
+ hopper: M(`
+................
+.iiiiiiiiiiiiii.
+.iIIIIIIIIIIIIi.
+.iIKKKKKKKKKKIi.
+.iIIIIIIIIIIIIi.
+.iiiiiiiiiiiiii.
+...iIIIIIIIIi...
+...iIIIIIIIIi...
+....iIIIIIIi....
+.....iIIIIi.....
+......iIIi......
+......iIIi......
+.......ii.......
+................
+................
+................`),
+ rail: M(`
+................
+...X........X...
+..wXwwwwwwwwXw..
+...X........X...
+...X........X...
+..wXwwwwwwwwXw..
+...X........X...
+...X........X...
+..wXwwwwwwwwXw..
+...X........X...
+...X........X...
+..wXwwwwwwwwXw..
+...X........X...
+...X........X...
+................
+................`),
+ note_block: M(`
+................
+.wwwwwwwwwwwwww.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWKKWWw.
+.wWWWWWWWWKWKWw.
+.wWWWWWWWWKWWWw.
+.wWWWWWWWWKWWWw.
+.wWWWWKKKKKWWWw.
+.wWWWKKKKKKWWWw.
+.wWWWWKKKKWWWWw.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wwwwwwwwwwwwww.
+................
+................`),
+ jukebox: M(`
+................
+.wwwwwwwwwwwwww.
+.wWWWWWWWWWWWWw.
+.wWWWKKKKKKWWWw.
+.wWWKKKKKKKKWWw.
+.wWWKKKRRKKKWWw.
+.wWWKKKRRKKKWWw.
+.wWWKKKKKKKKWWw.
+.wWWWKKKKKKWWWw.
+.wWWWWWWWWWWWWw.
+.wwwwwwwwwwwwww.
+.wWWWWWWWWWWWWw.
+.wWWWWWWWWWWWWw.
+.wwwwwwwwwwwwww.
+................
+................`),
+ redstone_lamp: M(`
+................
+.wwwwwwwwwwwwww.
+.wYYYFYYYYFYYYw.
+.wYFYYYYYYYYFYw.
+.wYYYYFYYFYYYYw.
+.wFYYYYYYYYYYFw.
+.wYYYYYFFYYYYYw.
+.wYYYYYFFYYYYYw.
+.wFYYYYYYYYYYFw.
+.wYYYYFYYFYYYYw.
+.wYFYYYYYYYYFYw.
+.wYYYFYYYYFYYYw.
+.wwwwwwwwwwwwww.
+................
+................
+................`),
+ target: M(`
+................
+.TTTTTTTTTTTTTT.
+.TRRRRRRRRRRRRT.
+.TRTTTTTTTTTTRT.
+.TRTRRRRRRRRTRT.
+.TRTRTTTTTTRTRT.
+.TRTRTRRRRTRTRT.
+.TRTRTRRRRTRTRT.
+.TRTRTTTTTTRTRT.
+.TRTRRRRRRRRTRT.
+.TRTTTTTTTTTTRT.
+.TRRRRRRRRRRRRT.
+.TTTTTTTTTTTTTT.
+................
+................
+................`),
+ daylight_detector: M(`
+................
+................
+................
+................
+................
+................
+.WWWWWWWWWWWWWW.
+.WCCCWCCCWCCCWW.
+.WCBCWCBCWCBCWW.
+.WWWWWWWWWWWWWW.
+.wwwwwwwwwwwwww.
+................
+................
+................
+................
+................`),
+ button: M(`
+................
+................
+................
+................
+................
+................
+.....XXXXXX.....
+.....XLLLLX.....
+.....XXXXXX.....
+.....DDDDDD.....
+................
+................
+................
+................
+................
+................`),
+ plate: M(`
+................
+................
+................
+................
+................
+................
+................
+................
+................
+..XXXXXXXXXXXX..
+..XLLLLLLLLLLX..
+..DDDDDDDDDDDD..
+................
+................
+................
+................`),
+ tripwire_hook: M(`
+................
+................
+.....iiii.......
+....i....i......
+.........i......
+.........i......
+.......WWW......
+.......WWW......
+.......WW.......
+.......WW.......
+.......WW.......
+.......ww.......
+................
+................
+................
+................`),
+ lightning_rod: M(`
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......X........
+.......D........
+.....XXXXX......
+.....DDDDD......
+................`),
+ helmet: M(`
+................
+................
+................
+....XXXXXXXX....
+...XLLXXXXXXX...
+..XLXXXXXXXXXX..
+..XXXXXXXXXXXX..
+..XXDDDDDDDDXX..
+..XD........DX..
+..XD........DX..
+..XX........XX..
+................
+................
+................
+................
+................`),
+ chestplate: M(`
+................
+..XXX......XXX..
+.XLLXX....XXXXX.
+.XLXXXXXXXXXXXX.
+.XXXXXXXXXXXXXX.
+..XXXXXXXXXXXX..
+...XXXXXXXXXX...
+...XXLXXXXXXX...
+...XXXXXXXXXX...
+...XXXXXXXXXX...
+...XXXXXXXXXX...
+...XDDDDDDDDX...
+................
+................
+................
+................`),
+ leggings: M(`
+................
+...XXXXXXXXXX...
+...XDDDDDDDDX...
+...XXXXXXXXXX...
+...XLXX..XXXX...
+...XXXX..XXXX...
+...XXXX..XXXX...
+...XXXX..XXXX...
+...XXXX..XXXX...
+...XXXX..XXXX...
+...XDDX..XDDX...
+................
+................
+................
+................
+................`),
+ boots: M(`
+................
+................
+................
+................
+...XXX....XXX...
+...XLX....XXX...
+...XXX....XXX...
+...XXX....XXX...
+..XXXX...XXXX...
+.XXXXX..XXXXX...
+.XDDDX..XDDDX...
+................
+................
+................
+................
+................`),
+ ingot: M(`
+................
+................
+................
+................
+................
+.....LLLLLLLL...
+....LXXXXXXXXD..
+...XXXXXXXXXD...
+..XXXXXXXXXD....
+..DDDDDDDDD.....
+................
+................
+................
+................
+................
+................`),
+ nugget: M(`
+................
+................
+................
+................
+................
+................
+......LLX.......
+.....LXXXD......
+.....XXXXD......
+......DDD.......
+................
+................
+................
+................
+................
+................`),
+ bucket: M(`
+................
+................
+....iiiiiiii....
+...i........i...
+..iIIIIIIIIIIi..
+..iXXXXXXXXXXi..
+..iIXXXXXXXXIi..
+...iIIIIIIIIi...
+...iIIIIIIIIi...
+...iIIIIIIIIi...
+....iIIIIIIi....
+....iiiiiiii....
+................
+................
+................
+................`),
+ book: M(`
+................
+................
+...XXXXXXXXX....
+...XLXXXXXXXT...
+...XLXXXXXXXT...
+...XLXXGXXXXT...
+...XLXGGGXXXT...
+...XLXXGXXXXT...
+...XLXXXXXXXT...
+...XLXXXXXXXT...
+...XDDDDDDDDT...
+....TTTTTTTTT...
+................
+................
+................
+................`),
+ paper: M(`
+................
+................
+....TTTTTTTT....
+....TiiiiiiT....
+....TTTTTTTT....
+....TiiiiiTT....
+....TTTTTTTT....
+....TiiiiiiT....
+....TTTTTTTT....
+....TiiiTTTT....
+....TTTTTTTT....
+................
+................
+................
+................
+................`),
+ bone: M(`
+................
+................
+..TT............
+.TTTT...........
+..TTTT..........
+...TTTT.........
+....TTTT........
+.....TTTT.......
+......TTTT......
+.......TTTT.....
+........TTTT....
+.........TTTT...
+..........TTTT..
+...........TTTT.
+............TT..
+................`),
+ compass: M(`
+................
+................
+.....iiiiii.....
+....iIIIIIIi....
+...iITTTTTTIi...
+...iITTTRTTIi...
+...iITTRRTTIi...
+...iITTKKTTIi...
+...iITTKTTTIi...
+...iITTTTTTIi...
+....iIIIIIIi....
+.....iiiiii.....
+................
+................
+................
+................`),
+ clock: M(`
+................
+................
+.....GGGGGG.....
+....GYYYYYYG....
+...GYBBBBBBYG...
+...GYBBBTBBYG...
+...GYBBKKBBYG...
+...GYNNNNNNYG...
+...GYNNNNNNYG...
+...GYYYYYYYYG...
+....GGGGGGGG....
+................
+................
+................
+................
+................`),
+ template: M(`
+................
+...ssssssssss...
+...sSSSSSSSSs...
+...sSXXXXXXSs...
+...sSXLLLLXSs...
+...sSXLXXLXSs...
+...sSXLXXLXSs...
+...sSXLLLLXSs...
+...sSXXXXXXSs...
+...sSSSSSSSSs...
+...sSSSSSSSSs...
+...ssssssssss...
+................
+................
+................
+................`),
+ shield: M(`
+................
+...wwwwwwwwww...
+...wWWWWiWWWw...
+...wWWWWiWWWw...
+...wWWWWiWWWw...
+...wiiiiiiiiw...
+...wWWWWiWWWw...
+...wWWWWiWWWw...
+....wWWWiWWw....
+.....wWWiWw.....
+......wwww......
+................
+................
+................
+................
+................`),
+};
+// figuras dibujadas con líneas
+function strokeIcon(name, px, col){
+  const line=(x0,y0,x1,y1,c)=>{ const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0)); for(let i=0;i<=n;i++) px(Math.round(x0+(x1-x0)*i/n),Math.round(y0+(y1-y0)*i/n),c); };
+  if(/^stick$/.test(name)){ line(3,13,12,4,'#8a6b3e'); line(4,13,13,4,'#6b4f2c'); return true; }
+  if(/^string$/.test(name)){ for(let x=2;x<14;x++) px(x,8+Math.round(Math.sin(x/1.6)*2),'#f2f2f2'); return true; }
+  if(/arrow$/.test(name)){ line(3,12,11,4,'#8a6b3e'); px(12,3,'#cfcfcf');px(11,3,'#cfcfcf');px(12,4,'#cfcfcf');px(13,2,'#9a9a9a');
+    const fl = name.startsWith('spectral')?'#f7d66b':name.startsWith('tipped')?'#b34ad1':'#f2f2f2'; [[2,11],[3,13],[2,13],[1,12],[4,13],[2,12]].forEach(([x,y])=>px(x,y,fl)); return true; }
+  if(/^bow$/.test(name)){ for(let t=-1.2;t<=1.2;t+=.08){ px(Math.round(7+Math.cos(t-Math.PI/4)*7-3),Math.round(8+Math.sin(t-Math.PI/4)*7+3),'#8a6b3e'); }
+    line(3,4,11,12,'#e6e6e6'); return true; }
+  if(/^crossbow$/.test(name)){ line(3,12,12,3,'#6b4f2c'); line(4,12,13,3,'#8a6b3e'); line(2,6,8,1,'#9a9a9a'); line(9,13,14,7,'#9a9a9a'); line(5,3,12,10,'#e6e6e6'); return true; }
+  if(/^trident$/.test(name)){ line(3,13,11,5,'#3ea79f'); line(4,13,12,5,'#4fd8d0'); line(10,2,14,6,'#4fd8d0'); line(11,1,11,4,'#4fd8d0'); line(14,4,15,4,'#4fd8d0'); px(15,5,'#4fd8d0'); px(12,1,'#4fd8d0'); return true; }
+  if(/^mace$/.test(name)){ line(3,13,9,7,'#6b4f2c'); for(let x=8;x<14;x++) for(let y=2;y<8;y++) px(x,y,(x+y)%3?'#8d8d8d':'#5c5c5c'); px(14,1,'#dadada');px(7,1,'#dadada');px(14,8,'#dadada'); return true; }
+  if(/^fishing_rod$/.test(name)){ line(2,14,12,2,'#8a6b3e'); for(let y=3;y<12;y++) px(13,y,'#e6e6e6'); px(12,12,'#9a9a9a');px(13,12,'#9a9a9a'); return true; }
+  if(/^shears$/.test(name)){ line(4,4,11,11,'#dadada'); line(4,11,11,4,'#dadada'); [[2,2],[3,2],[2,3],[2,12],[3,13],[2,13]].forEach(([x,y])=>px(x,y,'#d42a20')); return true; }
+  if(/^flint_and_steel$/.test(name)){ for(let x=2;x<7;x++) for(let y=8;y<13;y++) px(x,y,'#3a3a3a'); line(8,4,13,4,'#dadada'); line(8,4,8,9,'#dadada'); line(13,4,13,7,'#dadada'); return true; }
+  if(/^spyglass$/.test(name)){ line(3,12,12,3,'#b87333'); line(4,12,13,3,'#c98a4d'); line(4,13,13,4,'#8a5527'); px(13,2,'#4fd8d0');px(14,3,'#4fd8d0'); return true; }
+  if(/^brush$/.test(name)){ line(3,13,9,7,'#8a6b3e'); for(let x=9;x<14;x++) for(let y=2;y<8;y++) if(x+y>12) px(x,y,'#c98a4d'); line(9,7,13,3,'#b87333'); return true; }
+  return false;
+}
+function familyIcon(name, px, col, r){
+  let key=null, c=col;
+  const T = {crafting_table:1,furnace:1,stonecutter:1,smithing_table:1,enchanting_table:1,brewing_stand:1,chest:1,barrel:1,bookshelf:1,redstone:1,lever:1,
+    repeater:1,comparator:1,observer:1,dispenser:1,dropper:1,hopper:1,note_block:1,jukebox:1,redstone_lamp:1,target:1,daylight_detector:1,tripwire_hook:1,lightning_rod:1,shield:1,compass:1,recovery_compass:0,clock:1,paper:1,bone:1};
+  if(T[name]) key=name;
+  else if(/^(blast_furnace|smoker)$/.test(name)) key='furnace';
+  else if(/anvil$/.test(name)) key='anvil';
+  else if(/^(trapped_chest|ender_chest)$/.test(name)) key='chest';
+  else if(name==='chiseled_bookshelf') key='bookshelf';
+  else if(name==='recovery_compass') key='compass';
+  else if(/(^|_)torch$/.test(name)){ key='torch'; c = /redstone/.test(name)?'#d42a20':/soul/.test(name)?'#4fd8d0':/copper/.test(name)?'#7ed39b':'#f7c34a'; }
+  else if(/^(sticky_)?piston$/.test(name)){ key='piston'; c = name.startsWith('sticky')?'#6cbf4a':'#a37b46'; }
+  else if(/rail$/.test(name)){ key='rail'; c = /powered/.test(name)?'#e8bb3d':/activator/.test(name)?'#d42a20':'#9a9a9a'; }
+  else if(/_button$/.test(name)) key='button';
+  else if(/_pressure_plate$/.test(name)) key='plate';
+  else if(/_helmet$/.test(name)) key='helmet';
+  else if(/_chestplate$/.test(name)) key='chestplate';
+  else if(/_leggings$/.test(name)) key='leggings';
+  else if(/_boots$/.test(name)) key='boots';
+  else if(/_smithing_template$/.test(name)){ key='template'; c = /netherite/.test(name)?'#4a4042':'#4fb8b0'; }
+  else if(/_ingot$/.test(name)) key='ingot';
+  else if(/_nugget$/.test(name)) key='nugget';
+  else if(/(^|_)bucket$/.test(name)){ key='bucket'; c = /lava/.test(name)?'#f08a2a':/milk|powder_snow/.test(name)?'#f2f2f2':/^bucket$/.test(name)?'#9a9a9a':'#3d70d4'; }
+  else if(/(^|_)book$/.test(name)){ key='book'; c = /enchanted/.test(name)?'#7b3fb0':/writable|written/.test(name)?'#6b4f2c':'#8c4d2c'; }
+  if(!key) return false;
+  let map = MAPS[key];
+  if(name==='blast_furnace') map = map.map((row,y)=> y>=2&&y<=3 ? row.replace(/[Ss]/g,'I') : row);
+  if(name==='smoker') map = map.map((row,y)=> y>=1&&y<=3 ? row.replace(/S/g,'W').replace(/s/g,'w') : row);
+  if(name==='ender_chest') map = map.map(row=>row.replace(/W/g,'O').replace(/w/g,'K').replace(/I/g,'C'));
+  if(name==='trapped_chest') map = map.map(row=>row.replace(/I/g,'R'));
+  map.forEach((row,y)=>[...row].forEach((ch,x)=>{
+    if(ch==='.') return;
+    if(ch==='X') px(x,y,c);
+    else if(ch==='D'){ px(x,y,c); px(x,y,'#000',.3); }
+    else if(ch==='L'){ px(x,y,c); px(x,y,'#fff',.38); }
+    else { px(x,y,PAL[ch]); if('SWO'.includes(ch) && r()>.82) px(x,y,'#fff',.12); }
+  }));
+  return true;
+}
+
+// ---------- Íconos pixelados originales ----------
+const COLORS = [
+  ['light_blue','#3aafd9'],['light_gray','#9d9d97'],['redstone','#c0201a'],['glowstone','#f6d36a'],['lapis','#2a52be'],
+  ['white','#e9ecec'],['orange','#f07613'],['magenta','#bd44b3'],['yellow','#f8c527'],['lime','#70b919'],['pink','#ed8dac'],
+  ['gray','#4a5155'],['cyan','#158991'],['purple','#792aac'],['blue','#35399d'],['brown','#724728'],['green','#546d1b'],
+  ['red','#a12722'],['black','#1d1e24'],['diamond','#4fd8d0'],['emerald','#17c544'],['netherite','#4a4042'],
+  ['golden','#f2c94c'],['gold','#f2c94c'],['chainmail','#a7abb0'],['turtle','#4c9a4c'],['iron','#d8d8d8'],['copper','#c06a45'],['quartz','#ece6df'],['amethyst','#9a5cc6'],
+  ['pale_oak','#e6dcd7'],['dark_oak','#4a3018'],['oak','#b28b52'],['spruce','#6f4f2e'],['birch','#d6c587'],['jungle','#a87350'],
+  ['acacia','#b65f34'],['mangrove','#773635'],['cherry','#e0b0aa'],['bamboo','#c9b45a'],['crimson','#6b2c41'],['warped','#2b6963'],
+  ['sandstone','#dbd3a0'],['end_stone','#dedca0'],['blackstone','#2b2529'],['cobblestone','#7a7a7a'],['deepslate','#4d4d52'],
+  ['stone','#8a8a8a'],['sand','#dbcf9a'],['prismarine','#5fa597'],['nether','#5a2224'],['purpur','#a77ba7'],['mud','#8b6c4f'],
+  ['tuff','#6c6d66'],['clay','#a0a6b3'],['bone','#e3dfcc'],['slime','#7ac06a'],['honey','#f2a92a'],['enchanting','#8e2a35'],
+  ['smithing','#3a3a46'],['glass','#cfe5ec'],['paper','#efeee6'],['book','#8a5a2b'],['leather','#9a5a34'],['string','#e6e6e6'],
+  ['stick','#8a6b3e'],['wool','#e9ecec'],['coal','#2e2e2e'],['flint','#4a4a4a'],['feather','#efefef'],['torch','#f0b54a'],
+  ['lantern','#f0b54a'],['tnt','#c8372d'],['snow','#f4fbfb'],['ice','#8db4f7'],['moss','#5a7a2d'],['firework','#9a9a9a'],
+];
+function hash(s){ let h=2166136261; for(const c of s){ h^=c.charCodeAt(0); h=Math.imul(h,16777619);} return h>>>0; }
+function rng(seed){ let s=seed||1; return ()=>{ s^=s<<13; s^=s>>>17; s^=s<<5; return ((s>>>0)%1000)/1000; }; }
+function baseColor(name){
+  for(const [k,c] of COLORS) if(name.includes(k)) return c;
+  return `hsl(${hash(name)%360} 42% 52%)`;
+}
+function shade(ctx,hex,f){ ctx.fillStyle=hex; ctx.globalAlpha=1; return f; }
+const ICON_CACHE = {};
+function icon(id){
+  if(ICON_CACHE[id]) return ICON_CACHE[id];
+  const name = id, cv = document.createElement('canvas'); cv.width = cv.height = 16;
+  const g = cv.getContext('2d'), col = baseColor(name), r = rng(hash(name));
+  const px = (x,y,c,a=1)=>{ g.globalAlpha=a; g.fillStyle=c; g.fillRect(x,y,1,1); };
+  const dark = 'rgba(0,0,0,1)', light='rgba(255,255,255,1)';
+  if(strokeIcon(name, px, col) || familyIcon(name, px, col, r)){ g.globalAlpha=1; return ICON_CACHE[id] = cv.toDataURL(); }
+  const isBlock = /^(andesite|diorite|granite|calcite|obsidian|crying_obsidian|netherrack|basalt|dripstone_block|end_stone|glowstone|sponge|wet_sponge|ice|packed_ice|blue_ice|snow_block|pumpkin|melon|cactus|bedrock|gravel|clay|amethyst_block|magma_block|soul_sand|soul_soil|sculk|ancient_debris|lodestone|respawn_anchor|beacon|bamboo_mosaic)$|polished|_block$|planks|_wool$|terracotta|concrete|glass$|stone|bricks|_log$|_wood$|^sand|dirt|_ore$|deepslate|tiles|_table$|bookshelf|^tnt|quartz_pillar|hay|slime|honey|moss_block|_hyphae|_stem$|mud|tuff|prismarine$|purpur|calcite|barrel|chest|crafter|furnace|smoker|loom|lectern|_shelf/.test(name);
+  if(/lapis_lazuli$|^diamond$|^emerald$|amethyst_shard|^quartz$|prismarine_crystals|echo_shard/.test(name)){
+    const shape=["......XX......","....XXXXXX....","...XXXXXXXX...","..XXXXXXXXXX..",".XXXXXXXXXXXX.","XXXXXXXXXXXXXX",".XXXXXXXXXXXX.","..XXXXXXXXXX..","...XXXXXXXX...","....XXXXXX....",".....XXXX.....","......XX......"];
+    shape.forEach((row,y)=>[...row].forEach((c,x)=>{ if(c==='X'){ px(x+1,y+2,col); const v=r(); if(v>.8) px(x+1,y+2,light,.45); else if(v<.18) px(x+1,y+2,dark,.25); if(name==='lapis_lazuli' && v>.93) px(x+1,y+2,'#f2c94c'); }}));
+    for(let i=0;i<4;i++) px(5+i,4+i,light,.5);
+  } else if(name.endsWith('_dye')){
+    const shape=["....XXXX....","..XXXXXXXX..",".XXXXXXXXXX.","XXXXXXXXXXXX","XXXXXXXXXXXX","XXXXXXXXXXXX","XXXXXXXXXXXX",".XXXXXXXXXX.","..XXXXXXXX..","....XXXX...."];
+    shape.forEach((row,y)=>[...row].forEach((c,x)=>{ if(c==='X') px(x+2,y+4,col); }));
+    px(5,6,light,.6); px(6,6,light,.6); px(5,7,light,.5); px(4,5+9,dark,0);
+    for(let x=6;x<10;x++){ px(x,1,'#c9a26a'); px(x,2,'#c9a26a'); px(x,3,'#8a6b3e'); }
+  } else if(/_(sword|pickaxe|axe|shovel|hoe|spear)$/.test(name)){
+    for(let i=0;i<9;i++){ px(3+i,12-i,'#8a6b3e'); px(4+i,12-i,'#6b4f2c'); }
+    const head = /sword|spear/.test(name) ? [[8,3],[9,2],[10,1],[11,0],[9,4],[10,3],[11,2],[12,1],[10,5],[11,4],[12,3],[13,2]] :
+      /pickaxe/.test(name) ? [[5,2],[6,1],[7,1],[8,1],[9,1],[10,2],[11,3],[12,4],[12,5],[4,3],[13,6]] :
+      /axe/.test(name) ? [[9,1],[10,1],[11,2],[12,3],[12,4],[11,5],[10,4],[10,3],[9,2],[11,3],[11,4]] :
+      [[10,1],[11,1],[12,2],[12,3],[11,4],[10,3],[11,2],[11,3]];
+    head.forEach(([x,y])=>{ px(x+1,y,col); px(x+1,y,dark,.3); }); head.forEach(([x,y])=>px(x,y,col)); head.slice(0,3).forEach(([x,y])=>px(x,y,light,.4));
+  } else if(/_pane$|_carpet$|_bars$|_slab$/.test(name)){
+    const top = /_carpet$|_slab$/.test(name);
+    for(let x=1;x<15;x++) for(let y=(top?9:2);y<(top?14:14);y++){ if(!top && x>5 && x<10) continue; px(x,y,col); if(r()>.85) px(x,y,light,.35); }
+    if(!top) for(let y=2;y<14;y++){ px(1,y,dark,.2); px(14,y,dark,.2); }
+  } else if(name.endsWith('_bed')){
+    for(let x=1;x<15;x++){ for(let y=7;y<11;y++) px(x,y,col); px(x,11,'#8a6b3e'); }
+    for(let x=1;x<5;x++) for(let y=5;y<8;y++) px(x,y,'#eeeeee');
+    px(1,12,'#5a4129'); px(14,12,'#5a4129'); px(1,13,'#5a4129'); px(14,13,'#5a4129');
+  } else if(name.endsWith('candle')){
+    for(let y=5;y<15;y++) for(let x=6;x<10;x++){ px(x,y,col); if(x===6) px(x,y,light,.3); }
+    px(7,3,'#333'); px(7,1,'#f6c34a'); px(7,2,'#f08a2a'); px(8,2,'#f6c34a');
+  } else if(isBlock){
+    for(let x=1;x<15;x++) for(let y=1;y<15;y++){
+      px(x,y,col); const v=r(); if(v>.82) px(x,y,light,.28); else if(v<.2) px(x,y,dark,.18);
+    }
+    for(let i=1;i<15;i++){ px(i,1,light,.35); px(1,i,light,.25); px(i,14,dark,.35); px(14,i,dark,.3); }
+    if(/glass/.test(name)){ g.clearRect(2,2,12,12); px(3,3,col,.5); px(4,4,col,.5); px(5,5,col,.5); for(let x=2;x<14;x++) for(let y=2;y<14;y++) px(x,y,col,.25); }
+  } else {
+    for(let y=0;y<12;y++) for(let x=0;x<6;x++){
+      const on = r() > .42 || (x>=3 && y>2 && y<9);
+      if(!on) continue;
+      const c = r()>.8 ? 'light' : (r()<.15 ? 'dark' : 'base');
+      for(const xx of [2+x, 13-x]){ px(xx,2+y,col); if(c==='light') px(xx,2+y,light,.35); if(c==='dark') px(xx,2+y,dark,.25); }
+    }
+  }
+  g.globalAlpha=1;
+  return ICON_CACHE[id] = cv.toDataURL();
+}
+
+
+// ---------------------------------------------------------------- utilidades
+const range = d => d.min===d.max ? d.min : `${d.min}–${d.max}`;
+const condTxt = l => (l||[]).length ? l.map(c=>c.startsWith('probabilidad:') ? S().cond.prob(Math.round(parseFloat(c.split(':')[1])*1000)/10) : (S().cond[c]||c)).join('; ') : '—';
+const link = id => F[id] ? `<a href="#${id}">${esc(N(id))}</a>` : esc(N(id));
+const ingIds = i => !i ? [] : i.opciones || (i.item ? [i.item] : []);
+function ingTxt(i){
+  if(!i) return '';
+  if(i.item) return link(i.item);
+  const o = i.opciones||[];
+  if(i.tag) return `${S().any} ${esc(i.tag.replace(/_/g,' '))} (${o.slice(0,3).map(link).join(', ')}${o.length>3?`, +${o.length-3}`:''})`;
+  return o.map(link).join(' / ');
+}
+function partCell(i, cur, big){
+  if(!i) return '';
+  const ids = ingIds(i), id = ids.includes(cur) ? cur : ids[0];
+  if(!id) return '';
+  const label = i.item ? N(i.item) : ids.map(N).join(' / ');
+  return `<a href="#${id}" title="${esc(label)}" aria-label="${esc(label)}"><img alt="" src="${icon(id)}"></a>`;
+}
+
+// ---------------------------------------------------------------- estación (glifos lineales)
+const GLYPH = {
+  mesa_de_crafteo:'<rect x="20" y="2" width="20" height="20"/><path d="M26.7 2v20M33.3 2v20M20 8.7h20M20 15.3h20"/>',
+  horno:'<rect x="20" y="2" width="22" height="20"/><path d="M24 14h14M27 18c0-3 3-3 3-6 0 3 4 3 4 6"/>',
+  alto_horno:'<rect x="20" y="2" width="22" height="20"/><path d="M20 8h22M27 18c0-3 3-3 3-6 0 3 4 3 4 6"/>',
+  ahumador:'<rect x="20" y="4" width="22" height="18"/><path d="M26 4c0-2 2-2 2-4M34 4c0-2 2-2 2-4M27 18c0-3 3-3 3-6 0 3 4 3 4 6"/>',
+  fogata:'<path d="M18 21h28M22 18l20-4M22 14l20 4M28 12c0-4 4-4 4-10 2 4 4 6 2 10"/>',
+  cortapiedras:'<path d="M18 22h28M20 22v-8h24v8"/><circle cx="32" cy="10" r="6"/><path d="M32 4v12M26 10h12"/>',
+  mesa_de_herreria:'<path d="M20 6h24v5H20zM26 11v6M38 11v6M22 17h20v5H22z"/>',
+};
+const station = (t, note) => `<div class="station"><svg viewBox="0 0 64 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">${GLYPH[t]||''}</svg><span>${S().st[t]||t}</span>${note?`<em>${note}</em>`:''}</div>`;
+const ARR = `<svg width="34" height="14" viewBox="0 0 34 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M0 7h30M24 1l7 6-7 6"/></svg>`;
+
+function recipeHTML(r, cur){
+  const out = `<div class="part" title="${esc(N(cur))}"><img alt="${esc(N(cur))}" src="${icon(cur)}"><span class="n">${r.cantidad}</span></div>`;
+  let body;
+  if(r.cuadricula){
+    const h=r.cuadricula.length, w=Math.max(...r.cuadricula.map(x=>x.length)), oy=Math.floor((3-h)/2), ox=Math.floor((3-w)/2);
+    const cells = Array(9).fill(null); r.cuadricula.forEach((row,y)=>row.forEach((c,x)=>cells[(y+oy)*3+x+ox]=c));
+    body = `<div class="g3">${cells.map(c=>`<div>${partCell(c,cur)}</div>`).join('')}</div>${station('mesa_de_crafteo')}${out}`;
+  } else if(r.ingredientes){
+    const cells = Array(9).fill(null); r.ingredientes.forEach((c,i)=>cells[i]=c);
+    body = `<div class="g3">${cells.map(c=>`<div>${partCell(c,cur)}</div>`).join('')}</div>${station('mesa_de_crafteo', LANG==='es'?'sin forma':'shapeless')}${out}`;
+  } else if(r.plantilla){
+    body = ['plantilla','base','adicion'].map(k=>`<div class="part" title="${S().smith[k]}">${partCell(r[k],cur)}</div>`).join('') + station('mesa_de_herreria') + out;
+  } else {
+    const note = r.segundos!==undefined ? `${r.segundos} ${S().sec} / ${r.experiencia} ${S().xp}` : '';
+    body = `<div class="part">${partCell(r.ingrediente,cur)}</div>${station(r.tipo, note)}${out}`;
+  }
+  const ings = r.cuadricula ? r.cuadricula.flat().filter(Boolean) : r.ingredientes || (r.plantilla ? [r.plantilla,r.base,r.adicion] : [r.ingrediente]);
+  const cnt = {}; ings.forEach(i=>{ const k = ingTxt(i); cnt[k]=(cnt[k]||0)+1; });
+  const cap = Object.entries(cnt).map(([k,n])=>`${n} × ${k}`).join(', ');
+  return `<figure class="recipe" style="margin:0"><div class="row">${body}</div><figcaption>${cap}</figcaption></figure>`;
+}
+
+// ---------------------------------------------------------------- dibujo principal
+function drawing(f){
+  const d=f.datos, s=S().notes, isBlock=!!d.bloque;
+  const notes=[];
+  if(d.combate && d.combate.dano) notes.push(s.dmg(d.combate.dano));
+  if(d.durabilidad) notes.push(s.dur(d.durabilidad));
+  if(d.armadura && d.armadura.armadura) notes.push(s.arm(d.armadura.armadura));
+  if(d.comida) notes.push(s.food(d.comida.hambre));
+  if(isBlock){ notes.push(s.hard(d.bloque.dureza)); if(d.bloque.se_pica_con) notes.push(s.tool(S().tools[d.bloque.se_pica_con[0]])); notes.push(s.res(d.bloque.resistencia)); if(d.bloque.luz) notes.push(s.light(d.bloque.luz)); }
+  const nU = new Set((f.usos.recetas||[]).map(r=>r.resultado)).size;
+  if(nU) notes.push(s.uses(nU));
+  notes.splice(4);
+  const L = 150, cx=320, cy=165, x0=cx-L/2, y0=cy-L/2;
+  const anchors=[[x0+L,y0+28],[x0+L,y0+L-30],[x0,y0+36],[x0,y0+L-24]];
+  const tips=[[500,y0+6],[500,y0+L-6],[140,y0+14],[140,y0+L-4]];
+  let ann='';
+  notes.forEach((t,i)=>{
+    const [ax,ay]=anchors[i], [tx,ty]=tips[i], right=tx>cx, red=i===0;
+    const ex = right ? tx-12 : tx+12;
+    ann += `<path class="${red?'redline':'lead'}" d="M${ax},${ay} L${(ax+ex)/2},${ty} L${ex},${ty}"/><circle cx="${ax}" cy="${ay}" r="2.5" fill="currentColor" class="${red?'redt':'dimt'}"/>`;
+    ann += `<text class="${red?'redt':'note'}" x="${right?ex+4:ex-4}" y="${ty+5}" text-anchor="${right?'start':'end'}">${esc(t)}</text>`;
+  });
+  return `<svg viewBox="0 0 640 330" role="img" aria-label="${esc(N(f.id))}">
+    <rect x="${x0}" y="${y0}" width="${L}" height="${L}" fill="none" stroke="currentColor" class="dim" stroke-dasharray="${isBlock?'0':'4 4'}"/>
+    <image href="${icon(f.id)}" x="${x0+15}" y="${y0+15}" width="${L-30}" height="${L-30}" style="image-rendering:pixelated"/>
+    <path class="dim" d="M${x0},${y0-14} V${y0-30} M${x0+L},${y0-14} V${y0-30} M${x0},${y0-22} H${x0+L}"/>
+    <path class="dim" d="M${x0},${y0-22} l8,-4 v8 z M${x0+L},${y0-22} l-8,-4 v8 z" fill="currentColor"/>
+    <rect x="${cx-34}" y="${y0-32}" width="68" height="18" fill="var(--field)"/>
+    <text class="dimt" x="${cx}" y="${y0-18}" text-anchor="middle">${isBlock?s.block:s.item}</text>
+    <path class="dim" d="M${x0+L+14},${y0+L} H${x0+L+40} M${x0+L+30},${y0+L} V${y0+L+28}"/>
+    <text class="dimt" x="${cx}" y="${y0+L+34}" text-anchor="middle">${s.stack(d.apilable)}</text>
+    <g style="color:var(--line)">${ann}</g>
+  </svg>`;
+}
+
+// ---------------------------------------------------------------- mapa de usos
+function useMap(f){
+  const by = new Map();
+  for(const r of f.usos.recetas||[]){ if(!by.has(r.resultado)) by.set(r.resultado,new Set()); by.get(r.resultado).add(r.tipo); }
+  const list = [...by.entries()].sort((a,b)=>N(a[0]).localeCompare(N(b[0]),LANG));
+  if(!list.length) return `<p class="empty">${S().noUses}</p>`;
+  const n=list.length, W=560, H=480, cx=W/2, cy=H/2, two=n>12, showL=n<=12;
+  let lines='', nodes='';
+  list.forEach(([id,ts],i)=>{
+    const a=-Math.PI/2+i/n*Math.PI*2, R=two?(i%2?205:130):175;
+    const x=cx+Math.cos(a)*R*1.15, y=cy+Math.sin(a)*R*.9;
+    const alt=!ts.has('mesa_de_crafteo');
+    lines += `<path class="ln${alt?' alt':''}" d="M${cx},${cy} L${x},${y}"/>`;
+    nodes += `<g class="nd" tabindex="0" role="link" data-id="${id}" transform="translate(${x},${y})" aria-label="${esc(N(id))}"><title>${esc(N(id))}</title><rect x="-21" y="-21" width="42" height="42"/><image href="${icon(id)}" x="-15" y="-15" width="30" height="30" style="image-rendering:pixelated"/>${showL?`<text class="lbl" y="36">${esc(N(id).length>18?N(id).slice(0,17)+'…':N(id))}</text>`:''}</g>`;
+  });
+  const ctr = `<g class="ctr" transform="translate(${cx},${cy})"><rect x="-30" y="-30" width="60" height="60"/><image href="${icon(f.id)}" x="-22" y="-22" width="44" height="44" style="image-rendering:pixelated"/></g>`;
+  const rows = list.map(([id,ts])=>{
+    const r = (f.usos.recetas||[]).find(x=>x.resultado===id);
+    return `<tr><td><a href="#${id}"><img alt="" src="${icon(id)}">${esc(N(id))}</a></td><td>${[...ts].map(t=>S().st[t]).join(', ')}</td><td>${r.cantidad}</td></tr>`;
+  }).join('');
+  return `<div class="usegrid"><div class="usemap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${S().uses}">${lines}${nodes}${ctr}</svg>
+    <div class="legend"><span><i></i>${S().legCraft}</span><span><i class="alt"></i>${S().legOther}</span></div></div>
+    <div class="bom"><div class="scroll"><table><tr><th>${S().result}</th><th>${S().where}</th><th>${S().qty}</th></tr>${rows}</table></div></div></div>`;
+}
+
+// ---------------------------------------------------------------- anexos
+const tbl = (h, rows) => `<div class="scroll"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
+function specs(f){
+  const d=f.datos, t=S().data, rows=[];
+  const add=(k,v)=>{ if(v!==undefined&&v!==null&&v!=='') rows.push([k,v]); };
+  add(t.apilable,d.apilable); add(t.durabilidad,d.durabilidad); add(t.rareza,S().rar[d.rareza]||d.rareza);
+  if(d.resistente_al_fuego) add(t.fuego,t.yes); add(t.encantabilidad,d.encantabilidad);
+  if(d.se_repara_con) add(t.repara,d.se_repara_con.map(link).join(', '));
+  if(d.combate){ add(t.dano,d.combate.dano); add(t.vel,d.combate.velocidad); }
+  if(d.armadura){ add(t.arm,d.armadura.armadura); add(t.dur,d.armadura.dureza); add(t.emp,d.armadura.resistencia_empuje); add(t.ran,S().slots[d.armadura.ranura]||d.armadura.ranura); }
+  if(d.comida){ add(t.hambre,d.comida.hambre); add(t.sat,d.comida.saturacion); add(t.siempre,d.comida.siempre_comestible?t.yes:t.no); }
+  if(d.bloque){ add(t.bdur,d.bloque.dureza); add(t.bres,d.bloque.resistencia); add(t.luz,d.bloque.luz);
+    if(d.bloque.se_pica_con) add(t.pica,d.bloque.se_pica_con.map(x=>S().tools[x]).join(', '));
+    if(d.bloque.nivel_minimo) add(t.min,S().lv[d.bloque.nivel_minimo]); }
+  return `<dl class="spec">${rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+}
+function obtain(f){
+  const o=f.obtener, s=S(); let h='';
+  if(o.minar) h += `<h4>${s.mine}</h4>`+tbl([s.block,s.amount,s.conds], o.minar.map(m=>[link(m.bloque),range(m),condTxt(m.condiciones)]));
+  if(o.criaturas) h += `<h4>${s.mobs}</h4>`+tbl([s.mob,s.amount,s.conds], o.criaturas.map(m=>[esc(m.nombre[LANG]),range(m),condTxt(m.condiciones)]));
+  if(o.aldeanos) h += `<h4>${s.vill}</h4>`+tbl([s.villager,s.level,s.get,s.pay], o.aldeanos.map(t=>[esc(t.nombre[LANG]),t.nivel??'—',t.da,t.pide.map(p=>`${p.cantidad} × ${link(p.item)}`).join(' + ')]));
+  let chest=false;
+  for(const [k,t] of [['cofres',s.chests],['arqueologia',s.arch],['esquilar',s.shear],['cepillar',s.brush],['cosechar',s.harvest],['otros',s.other]])
+    if(o[k]){ chest=true; h += `<h4>${t}</h4>`+tbl([s.source,s.amount,s.chance,s.conds], o[k].map(m=>[esc(srcName(m.fuente)),range(m),m.peso!==undefined?`${Math.round(m.peso*1000)/10}%`:'—',condTxt(m.condiciones)])); }
+  if(chest) h += `<p class="empty" style="margin-top:8px;font-size:13px">${s.chanceNote}</p>`;
+  if(s.extra[f.id]) h += `<h4>${LANG==='es'?'En el mundo':'In the world'}</h4><p style="margin:0">${s.extra[f.id]}</p>`;
+  return h || `<p class="empty">${s.noObtain}</p>`;
+}
+function trade(f){
+  const u=f.usos, s=S(); let h='';
+  if(u.aldeanos) h += `<h4>${s.sell}</h4>`+tbl([s.villager,s.level,s.give,s.receive], u.aldeanos.map(t=>[esc(t.nombre[LANG]),t.nivel??'—',t.cantidad,`${t.recibes_cantidad} × ${link(t.recibes)}`]));
+  if(u.especiales) h += `<h4>${s.otherUses}</h4><ul class="chips">${u.especiales.map(e=>`<li>${s.esp[e]||e}</li>`).join('')}</ul>`;
+  return h || `<p class="empty">${s.noA4}</p>`;
+}
+
+// ---------------------------------------------------------------- render
+function render(){
+  let id = decodeURIComponent(location.hash.slice(1)) || 'cobblestone';
+  if(!F[id]) id='cobblestone';
+  const f=F[id], s=S(), d=f.datos;
+  document.title = `${N(id)} · ${s.brand}`;
+  const fab = (f.obtener.recetas||[]);
+  const zones = ['A','B','C','D'].map((z,i)=>`<span style="left:4px;top:${12+i*25}%">${z}</span><span style="right:4px;top:${12+i*25}%">${z}</span>`).join('') +
+    [1,2,3,4,5,6].map((z,i)=>`<span style="top:3px;left:${8+i*16.5}%">${z}</span>`).join('');
+  const ench = d.encantamientos ? `<section class="annex"><h3><span>A3</span>${s.A3}</h3><ul class="chips">${d.encantamientos.map(e=>`<li>${esc(e.nombre[LANG])} <small>${s.maxLv} ${e.nivel_max}${e.maldicion?`, ${s.curse}`:''}${e.tesoro&&!e.maldicion?`, ${s.treasure}`:''}</small></li>`).join('')}</ul></section>` : '';
+  document.getElementById('app').innerHTML = `
+  <div class="sheetwrap"><div class="plate"><div class="zones" aria-hidden="true">${zones}</div>
+    <div class="plate-top">
+      <div class="drawing">${drawing(f)}</div>
+      <div class="cajetin">
+        <div class="full"><small>${s.object}</small><h1>${esc(N(id))}</h1><span>${esc(f.nombre[LANG==='es'?'en':'es'])}</span></div>
+        <div class="full"><small>${s.id}</small><b>minecraft:${id}</b></div>
+        <div><small>${s.sheet}</small><b>${SHEETNO[id]} ${s.of} ${IDS.length}</b></div>
+        <div><small>${s.version}</small><b>26.1</b></div>
+        <div><small>${s.rarity}</small><b>${s.rar[d.rareza]||d.rareza}</b></div>
+        <div><small>${s.scale}</small><b>${s.scaleV}</b></div>
+      </div>
+    </div>
+    <section class="block"><header><h2>${s.fab}</h2><p>${s.fabSub}</p></header>
+      ${fab.length ? `<div class="recipes">${fab.map(r=>recipeHTML(r,id)).join('')}</div>` : `<p class="empty">${s.noFab}</p>`}
+    </section>
+    <section class="block"><header><h2>${s.uses}</h2><p>${s.usesSub}</p></header>${useMap(f)}</section>
+  </div></div>
+  <div class="annexes">
+    <section class="annex"><h3><span>A1</span>${s.A1}</h3>${specs(f)}</section>
+    ${ench}
+    <section class="annex wide"><h3><span>A2</span>${s.A2}</h3>${obtain(f)}</section>
+    <section class="annex"><h3><span>A4</span>${s.A4}</h3>${trade(f)}</section>
+  </div>`;
+  document.querySelectorAll('.usemap .nd').forEach(g=>{
+    const go=()=>{ location.hash = g.dataset.id; };
+    g.addEventListener('click',go); g.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+  });
+}
+function applyLang(){
+  document.documentElement.lang=LANG; const s=S();
+  document.getElementById('brandName').textContent=s.brand;
+  q.placeholder=s.ph; q.setAttribute('aria-label',s.ph);
+  document.getElementById('foot').textContent=s.foot;
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===LANG));
+}
+// ---------------------------------------------------------------- búsqueda
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const IDX = IDS.map(id=>({id,k:norm(F[id].nombre.es+' '+F[id].nombre.en+' '+id.replace(/_/g,' '))}));
+const q=document.getElementById('q'), sugg=document.getElementById('sugg'); let hits=[], hi=0;
+function showSugg(){
+  const v=norm(q.value.trim()); if(!v){ sugg.innerHTML=''; hits=[]; return; }
+  hits = IDX.filter(x=>x.k.includes(v)).sort((a,b)=>a.k.indexOf(v)-b.k.indexOf(v)||a.k.length-b.k.length).slice(0,10).map(x=>x.id); hi=0;
+  sugg.innerHTML = hits.length ? hits.map((id,i)=>`<li><a href="#${id}" class="${i===0?'on':''}"><img alt="" src="${icon(id)}">${esc(N(id))}<small>${esc(F[id].nombre[LANG==='es'?'en':'es'])}</small></a></li>`).join('') : `<li style="padding:6px 8px;color:var(--muted)">${S().none}</li>`;
+}
+q.addEventListener('input',showSugg);
+q.addEventListener('keydown',e=>{
+  if(!hits.length) return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); hi=(hi+(e.key==='ArrowDown'?1:-1)+hits.length)%hits.length; sugg.querySelectorAll('a').forEach((a,i)=>a.classList.toggle('on',i===hi)); }
+  if(e.key==='Enter'){ e.preventDefault(); location.hash=hits[hi]; }
+  if(e.key==='Escape'){ sugg.innerHTML=''; hits=[]; }
+});
+sugg.addEventListener('click',()=>setTimeout(()=>{ sugg.innerHTML=''; q.value=''; hits=[]; },0));
+window.addEventListener('hashchange',()=>{ sugg.innerHTML=''; q.value=''; hits=[]; render(); window.scrollTo(0,0); });
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{ LANG=b.dataset.l; try{localStorage.setItem('bp-lang',LANG);}catch(e){} applyLang(); render(); });
+applyLang(); render();
+</script>
+</body>
+</html>
