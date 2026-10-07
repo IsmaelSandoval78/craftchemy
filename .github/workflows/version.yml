@@ -1,0 +1,53 @@
+# Cada lunes: si salió una versión estable nueva, regenera data/ y abre un PR.
+# Si validate.py falla, el PR queda en rojo en vez de publicar datos malos.
+name: Revisar versión nueva
+
+on:
+  schedule:
+    - cron: '17 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: ¿Hay versión nueva?
+        id: version
+        run: python3 pipeline/latest_version.py --apply | tee -a "$GITHUB_OUTPUT"
+      - name: Descargar fuentes y regenerar datos
+        if: steps.version.outputs.nueva
+        run: |
+          npm run fetch
+          npm run data
+      - name: Validar
+        if: steps.version.outputs.nueva
+        id: validar
+        continue-on-error: true
+        run: python3 pipeline/validate.py 2>&1 | tee validacion.txt
+      - name: Abrir pull request
+        if: steps.version.outputs.nueva
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: datos/version-${{ steps.version.outputs.nueva }}
+          commit-message: 'Datos: actualizar a la versión ${{ steps.version.outputs.nueva }}'
+          title: 'Datos: versión ${{ steps.version.outputs.nueva }}'
+          add-paths: |
+            config/site.json
+            data/
+          body: |
+            Salió la versión estable **${{ steps.version.outputs.nueva }}**. Este PR regenera `data/` con el pipeline.
+
+            Validación: **${{ steps.validar.outcome == 'success' && 'OK' || 'FALLÓ: revisar antes de fusionar' }}**
+
+            Revisa en la lámina de algunos objetos que recetas y botín se vean bien. Si algo se rompió, corrige `pipeline/build_fichas.py` y agrega la comprobación a `pipeline/validate.py`.

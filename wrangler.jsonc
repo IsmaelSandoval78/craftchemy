@@ -1,0 +1,12 @@
+// Cloudflare Workers (sitio estático): Cloudflare clona el repo, corre el build
+// configurado en el panel (npm run build) y publica dist/ como assets.
+// "name" debe coincidir con el nombre del Worker en el panel de Cloudflare.
+{
+  "name": "craftchemy",
+  "compatibility_date": "2026-10-06",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

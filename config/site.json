@@ -1,0 +1,14 @@
+{
+  "nombre": "Craftchemy",
+  "enciclopedia": { "es": "Planos", "en": "Blueprints" },
+  "dominio": "craftchemy.com",
+  "url": "https://craftchemy.com",
+  "version_minecraft": "26.3",
+  "idiomas": ["es", "en"],
+  "idioma_por_defecto": "es",
+  "rutas": {
+    "es": { "objeto": "objeto", "indice": "indice", "buscar": "buscar" },
+    "en": { "objeto": "item", "indice": "index", "buscar": "search" }
+  },
+  "cloudflare_proyecto": "craftchemy"
+}

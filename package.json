@@ -1,0 +1,15 @@
+{
+  "name": "craftchemy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Craftchemy: láminas técnicas bilingües de cada objeto del juego, generadas desde los datos oficiales.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "fetch": "bash pipeline/fetch_sources.sh",
+    "data": "python3 pipeline/build_fichas.py",
+    "validate": "python3 pipeline/validate.py",
+    "build": "node site/build.mjs",
+    "preview": "node site/preview.mjs"
+  }
+}

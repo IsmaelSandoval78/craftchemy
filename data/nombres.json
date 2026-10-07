@@ -1,0 +1,648 @@
+{
+ "entidades": {
+  "acacia_boat": {
+   "es": "Barca de acacia",
+   "en": "Acacia Boat"
+  },
+  "acacia_chest_boat": {
+   "es": "Barca de acacia con cofre",
+   "en": "Acacia Boat with Chest"
+  },
+  "allay": {
+   "es": "Allay",
+   "en": "Allay"
+  },
+  "area_effect_cloud": {
+   "es": "Nube de efecto persistente",
+   "en": "Area Effect Cloud"
+  },
+  "armadillo": {
+   "es": "Armadillo",
+   "en": "Armadillo"
+  },
+  "armor_stand": {
+   "es": "Soporte para armadura",
+   "en": "Armor Stand"
+  },
+  "arrow": {
+   "es": "Flecha",
+   "en": "Arrow"
+  },
+  "axolotl": {
+   "es": "Ajolote",
+   "en": "Axolotl"
+  },
+  "bamboo_chest_raft": {
+   "es": "Balsa de bambú con cofre",
+   "en": "Bamboo Raft with Chest"
+  },
+  "bamboo_raft": {
+   "es": "Balsa de bambú",
+   "en": "Bamboo Raft"
+  },
+  "bat": {
+   "es": "Murciélago",
+   "en": "Bat"
+  },
+  "bee": {
+   "es": "Abeja",
+   "en": "Bee"
+  },
+  "birch_boat": {
+   "es": "Barca de abedul",
+   "en": "Birch Boat"
+  },
+  "birch_chest_boat": {
+   "es": "Barca de abedul con cofre",
+   "en": "Birch Boat with Chest"
+  },
+  "blaze": {
+   "es": "Blaze",
+   "en": "Blaze"
+  },
+  "block_display": {
+   "es": "Bloque holográfico",
+   "en": "Block Display"
+  },
+  "bogged": {
+   "es": "Ciénago",
+   "en": "Bogged"
+  },
+  "breeze": {
+   "es": "Breeze",
+   "en": "Breeze"
+  },
+  "breeze_wind_charge": {
+   "es": "Carga de viento",
+   "en": "Wind Charge"
+  },
+  "camel": {
+   "es": "Camello",
+   "en": "Camel"
+  },
+  "camel_husk": {
+   "es": "Camello disecado",
+   "en": "Camel Husk"
+  },
+  "cat": {
+   "es": "Gato",
+   "en": "Cat"
+  },
+  "cave_spider": {
+   "es": "Araña de cueva",
+   "en": "Cave Spider"
+  },
+  "cherry_boat": {
+   "es": "Barca de cerezo",
+   "en": "Cherry Boat"
+  },
+  "cherry_chest_boat": {
+   "es": "Barca de cerezo con cofre",
+   "en": "Cherry Boat with Chest"
+  },
+  "chest_minecart": {
+   "es": "Vagoneta con cofre",
+   "en": "Minecart with Chest"
+  },
+  "chicken": {
+   "es": "Pollo",
+   "en": "Chicken"
+  },
+  "cod": {
+   "es": "Bacalao",
+   "en": "Cod"
+  },
+  "command_block_minecart": {
+   "es": "Vagoneta con bloque de comandos",
+   "en": "Minecart with Command Block"
+  },
+  "copper_golem": {
+   "es": "Gólem de cobre",
+   "en": "Copper Golem"
+  },
+  "cow": {
+   "es": "Vaca",
+   "en": "Cow"
+  },
+  "creaking": {
+   "es": "Crepitante",
+   "en": "Creaking"
+  },
+  "creeper": {
+   "es": "Creeper",
+   "en": "Creeper"
+  },
+  "cushion": {
+   "es": "Cojín",
+   "en": "Cushion"
+  },
+  "dark_oak_boat": {
+   "es": "Barca de roble oscuro",
+   "en": "Dark Oak Boat"
+  },
+  "dark_oak_chest_boat": {
+   "es": "Barca de roble oscuro con cofre",
+   "en": "Dark Oak Boat with Chest"
+  },
+  "dolphin": {
+   "es": "Delfín",
+   "en": "Dolphin"
+  },
+  "donkey": {
+   "es": "Burro",
+   "en": "Donkey"
+  },
+  "dragon_fireball": {
+   "es": "Bola de fuego de dragón",
+   "en": "Dragon Fireball"
+  },
+  "drowned": {
+   "es": "Ahogado",
+   "en": "Drowned"
+  },
+  "egg": {
+   "es": "Huevo lanzado",
+   "en": "Thrown Egg"
+  },
+  "elder_guardian": {
+   "es": "Guardián anciano",
+   "en": "Elder Guardian"
+  },
+  "end_crystal": {
+   "es": "Cristal del End",
+   "en": "End Crystal"
+  },
+  "ender_dragon": {
+   "es": "Enderdragón",
+   "en": "Ender Dragon"
+  },
+  "ender_pearl": {
+   "es": "Perla de ender lanzada",
+   "en": "Thrown Ender Pearl"
+  },
+  "enderman": {
+   "es": "Enderman",
+   "en": "Enderman"
+  },
+  "endermite": {
+   "es": "Endermite",
+   "en": "Endermite"
+  },
+  "evoker": {
+   "es": "Evocador",
+   "en": "Evoker"
+  },
+  "evoker_fangs": {
+   "es": "Colmillos de evocador",
+   "en": "Evoker Fangs"
+  },
+  "experience_bottle": {
+   "es": "Frasco con experiencia lanzado",
+   "en": "Thrown Bottle o' Enchanting"
+  },
+  "experience_orb": {
+   "es": "Orbe de experiencia",
+   "en": "Experience Orb"
+  },
+  "eye_of_ender": {
+   "es": "Ojo de ender",
+   "en": "Eye of Ender"
+  },
+  "falling_block": {
+   "es": "Bloque en caída",
+   "en": "Falling Block"
+  },
+  "fireball": {
+   "es": "Bola de fuego",
+   "en": "Fireball"
+  },
+  "firework_rocket": {
+   "es": "Cohete de fuegos artificiales",
+   "en": "Firework Rocket"
+  },
+  "fishing_bobber": {
+   "es": "Anzuelo",
+   "en": "Fishing Bobber"
+  },
+  "fox": {
+   "es": "Zorro",
+   "en": "Fox"
+  },
+  "frog": {
+   "es": "Rana",
+   "en": "Frog"
+  },
+  "furnace_minecart": {
+   "es": "Vagoneta con horno",
+   "en": "Minecart with Furnace"
+  },
+  "ghast": {
+   "es": "Ghast",
+   "en": "Ghast"
+  },
+  "giant": {
+   "es": "Zombi gigante",
+   "en": "Giant"
+  },
+  "glow_item_frame": {
+   "es": "Marco luminoso",
+   "en": "Glow Item Frame"
+  },
+  "glow_squid": {
+   "es": "Calamar luminoso",
+   "en": "Glow Squid"
+  },
+  "goat": {
+   "es": "Cabra",
+   "en": "Goat"
+  },
+  "guardian": {
+   "es": "Guardián",
+   "en": "Guardian"
+  },
+  "happy_ghast": {
+   "es": "Ghast feliz",
+   "en": "Happy Ghast"
+  },
+  "hoglin": {
+   "es": "Hoglin",
+   "en": "Hoglin"
+  },
+  "hopper_minecart": {
+   "es": "Vagoneta con tolva",
+   "en": "Minecart with Hopper"
+  },
+  "horse": {
+   "es": "Caballo",
+   "en": "Horse"
+  },
+  "husk": {
+   "es": "Disecado",
+   "en": "Husk"
+  },
+  "illusioner": {
+   "es": "Ilusionista",
+   "en": "Illusioner"
+  },
+  "interaction": {
+   "es": "Interacción",
+   "en": "Interaction"
+  },
+  "iron_golem": {
+   "es": "Gólem de hierro",
+   "en": "Iron Golem"
+  },
+  "item": {
+   "es": "Objeto",
+   "en": "Item"
+  },
+  "item_display": {
+   "es": "Objeto holográfico",
+   "en": "Item Display"
+  },
+  "item_frame": {
+   "es": "Marco",
+   "en": "Item Frame"
+  },
+  "jungle_boat": {
+   "es": "Barca de jungla",
+   "en": "Jungle Boat"
+  },
+  "jungle_chest_boat": {
+   "es": "Barca de jungla con cofre",
+   "en": "Jungle Boat with Chest"
+  },
+  "leash_knot": {
+   "es": "Nudo de rienda",
+   "en": "Leash Knot"
+  },
+  "lightning_bolt": {
+   "es": "Rayo",
+   "en": "Lightning Bolt"
+  },
+  "lingering_potion": {
+   "es": "Poción persistente",
+   "en": "Lingering Potion"
+  },
+  "llama": {
+   "es": "Llama",
+   "en": "Llama"
+  },
+  "llama_spit": {
+   "es": "Escupitajo de llama",
+   "en": "Llama Spit"
+  },
+  "magma_cube": {
+   "es": "Cubo de magma",
+   "en": "Magma Cube"
+  },
+  "mangrove_boat": {
+   "es": "Barca de mangle",
+   "en": "Mangrove Boat"
+  },
+  "mangrove_chest_boat": {
+   "es": "Barca de mangle con cofre",
+   "en": "Mangrove Boat with Chest"
+  },
+  "mannequin": {
+   "es": "Maniquí",
+   "en": "Mannequin"
+  },
+  "marker": {
+   "es": "Marcador",
+   "en": "Marker"
+  },
+  "minecart": {
+   "es": "Vagoneta",
+   "en": "Minecart"
+  },
+  "mooshroom": {
+   "es": "Mooshroom",
+   "en": "Mooshroom"
+  },
+  "mule": {
+   "es": "Mula",
+   "en": "Mule"
+  },
+  "nautilus": {
+   "es": "Nautilo",
+   "en": "Nautilus"
+  },
+  "oak_boat": {
+   "es": "Barca de roble",
+   "en": "Oak Boat"
+  },
+  "oak_chest_boat": {
+   "es": "Barca de roble con cofre",
+   "en": "Oak Boat with Chest"
+  },
+  "ocelot": {
+   "es": "Ocelote",
+   "en": "Ocelot"
+  },
+  "ominous_item_spawner": {
+   "es": "Generador de objetos ominoso",
+   "en": "Ominous Item Spawner"
+  },
+  "painting": {
+   "es": "Cuadro",
+   "en": "Painting"
+  },
+  "pale_oak_boat": {
+   "es": "Barca de roble pálido",
+   "en": "Pale Oak Boat"
+  },
+  "pale_oak_chest_boat": {
+   "es": "Barca de roble pálido con cofre",
+   "en": "Pale Oak Boat with Chest"
+  },
+  "panda": {
+   "es": "Panda",
+   "en": "Panda"
+  },
+  "parched": {
+   "es": "Momificado",
+   "en": "Parched"
+  },
+  "parrot": {
+   "es": "Loro",
+   "en": "Parrot"
+  },
+  "phantom": {
+   "es": "Fantasma",
+   "en": "Phantom"
+  },
+  "pig": {
+   "es": "Cerdo",
+   "en": "Pig"
+  },
+  "piglin": {
+   "es": "Piglin",
+   "en": "Piglin"
+  },
+  "piglin_brute": {
+   "es": "Piglin bruto",
+   "en": "Piglin Brute"
+  },
+  "pillager": {
+   "es": "Saqueador",
+   "en": "Pillager"
+  },
+  "player": {
+   "es": "Jugador",
+   "en": "Player"
+  },
+  "polar_bear": {
+   "es": "Oso polar",
+   "en": "Polar Bear"
+  },
+  "poplar_boat": {
+   "es": "Barca de álamo",
+   "en": "Poplar Boat"
+  },
+  "poplar_chest_boat": {
+   "es": "Barca de álamo con cofre",
+   "en": "Poplar Boat with Chest"
+  },
+  "pufferfish": {
+   "es": "Pez globo",
+   "en": "Pufferfish"
+  },
+  "rabbit": {
+   "es": "Conejo",
+   "en": "Rabbit"
+  },
+  "ravager": {
+   "es": "Devastador",
+   "en": "Ravager"
+  },
+  "salmon": {
+   "es": "Salmón",
+   "en": "Salmon"
+  },
+  "sheep": {
+   "es": "Oveja",
+   "en": "Sheep"
+  },
+  "shulker": {
+   "es": "Shulker",
+   "en": "Shulker"
+  },
+  "shulker_bullet": {
+   "es": "Proyectil de shulker",
+   "en": "Shulker Bullet"
+  },
+  "silverfish": {
+   "es": "Lepisma",
+   "en": "Silverfish"
+  },
+  "skeleton": {
+   "es": "Esqueleto",
+   "en": "Skeleton"
+  },
+  "skeleton_horse": {
+   "es": "Caballo esqueleto",
+   "en": "Skeleton Horse"
+  },
+  "slime": {
+   "es": "Slime",
+   "en": "Slime"
+  },
+  "small_fireball": {
+   "es": "Bola de fuego pequeña",
+   "en": "Small Fireball"
+  },
+  "sniffer": {
+   "es": "Sniffer",
+   "en": "Sniffer"
+  },
+  "snow_golem": {
+   "es": "Gólem de nieve",
+   "en": "Snow Golem"
+  },
+  "snowball": {
+   "es": "Bola de nieve",
+   "en": "Snowball"
+  },
+  "spawner_minecart": {
+   "es": "Vagoneta con generador de criaturas",
+   "en": "Minecart with Monster Spawner"
+  },
+  "spectral_arrow": {
+   "es": "Flecha espectral",
+   "en": "Spectral Arrow"
+  },
+  "spider": {
+   "es": "Araña",
+   "en": "Spider"
+  },
+  "splash_potion": {
+   "es": "Poción arrojadiza",
+   "en": "Splash Potion"
+  },
+  "spruce_boat": {
+   "es": "Barca de abeto",
+   "en": "Spruce Boat"
+  },
+  "spruce_chest_boat": {
+   "es": "Barca de abeto con cofre",
+   "en": "Spruce Boat with Chest"
+  },
+  "squid": {
+   "es": "Calamar",
+   "en": "Squid"
+  },
+  "stray": {
+   "es": "Errante",
+   "en": "Stray"
+  },
+  "strider": {
+   "es": "Lavagante",
+   "en": "Strider"
+  },
+  "sulfur_cube": {
+   "es": "Cubo de azufre",
+   "en": "Sulfur Cube"
+  },
+  "tadpole": {
+   "es": "Renacuajo",
+   "en": "Tadpole"
+  },
+  "text_display": {
+   "es": "Texto holográfico",
+   "en": "Text Display"
+  },
+  "tnt": {
+   "es": "Dinamita activada",
+   "en": "Primed TNT"
+  },
+  "tnt_minecart": {
+   "es": "Vagoneta con dinamita",
+   "en": "Minecart with TNT"
+  },
+  "trader_llama": {
+   "es": "Llama ambulante",
+   "en": "Trader Llama"
+  },
+  "trident": {
+   "es": "Tridente",
+   "en": "Trident"
+  },
+  "tropical_fish": {
+   "es": "Pez tropical",
+   "en": "Tropical Fish"
+  },
+  "turtle": {
+   "es": "Tortuga",
+   "en": "Turtle"
+  },
+  "vex": {
+   "es": "Vex",
+   "en": "Vex"
+  },
+  "villager": {
+   "es": "Aldeano",
+   "en": "Villager"
+  },
+  "vindicator": {
+   "es": "Vindicador",
+   "en": "Vindicator"
+  },
+  "wandering_trader": {
+   "es": "Vendedor ambulante",
+   "en": "Wandering Trader"
+  },
+  "warden": {
+   "es": "Warden",
+   "en": "Warden"
+  },
+  "wind_charge": {
+   "es": "Carga de viento",
+   "en": "Wind Charge"
+  },
+  "witch": {
+   "es": "Bruja",
+   "en": "Witch"
+  },
+  "wither": {
+   "es": "Wither",
+   "en": "Wither"
+  },
+  "wither_skeleton": {
+   "es": "Esqueleto del Wither",
+   "en": "Wither Skeleton"
+  },
+  "wither_skull": {
+   "es": "Calavera de Wither",
+   "en": "Wither Skull"
+  },
+  "wolf": {
+   "es": "Lobo",
+   "en": "Wolf"
+  },
+  "zoglin": {
+   "es": "Zoglin",
+   "en": "Zoglin"
+  },
+  "zombie": {
+   "es": "Zombi",
+   "en": "Zombie"
+  },
+  "zombie_horse": {
+   "es": "Caballo zombi",
+   "en": "Zombie Horse"
+  },
+  "zombie_nautilus": {
+   "es": "Nautilo zombi",
+   "en": "Zombie Nautilus"
+  },
+  "zombie_villager": {
+   "es": "Aldeano zombi",
+   "en": "Zombie Villager"
+  },
+  "zombified_piglin": {
+   "es": "Piglin zombificado",
+   "en": "Zombified Piglin"
+  }
+ }
+}
