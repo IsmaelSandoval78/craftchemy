@@ -106,7 +106,7 @@ ${grupos.map(entrada).join('\n')}
 `);
 escribir('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${url}/sitemap.xml\n`);
 
-// Cabeceras para Cloudflare Pages
+// Cabeceras y redirecciones (Cloudflare Workers assets las lee de dist/)
 escribir('_headers', `/iconos/*
   Cache-Control: public, max-age=604800
 /assets/*

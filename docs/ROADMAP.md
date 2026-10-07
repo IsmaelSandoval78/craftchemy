@@ -4,7 +4,7 @@
 - Pipeline de datos desde fuentes oficiales, con validación de hechos conocidos.
 - 1.657 objetos × 2 idiomas = 3.314 láminas. Portada, índice A–Z, buscador, sitemap con `hreflang` y 404.
 - Íconos PNG propios generados en el build.
-- GitHub Actions: despliegue en cada push a `main`, comprobación de cada PR y revisión semanal de versión nueva.
+- Despliegue: Cloudflare Workers construye y publica en cada push. GitHub Actions comprueba cada PR y revisa cada semana si hay versión nueva.
 
 ## Fase 1 · Calidad de contenido (siguiente)
 1. Traducir los nombres de etiquetas de objetos (hoy sale "cualquier planks") y de estructuras y fuentes de cofres (hoy sale "abandoned mineshaft") en `i18n.mjs`.

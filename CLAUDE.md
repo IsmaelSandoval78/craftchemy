@@ -1,6 +1,6 @@
 # Craftchemy — contexto para Claude Code
 
-Sitio estático bilingüe (español/inglés) en **craftchemy.com** con una "lámina técnica" por cada objeto de Minecraft, generada desde los datos oficiales del juego. Estilo visual: planos (cianotipo en modo oscuro, whiteprint en modo claro) con íconos pixelados originales a color. Desplegado en Cloudflare Pages desde GitHub Actions.
+Sitio estático bilingüe (español/inglés) en **craftchemy.com** con una "lámina técnica" por cada objeto de Minecraft, generada desde los datos oficiales del juego. Estilo visual: planos (cianotipo en modo oscuro, whiteprint en modo claro) con íconos pixelados originales a color. Desplegado en Cloudflare Workers (assets estáticos), que construye solo desde GitHub con `wrangler.jsonc`.
 
 Dueño: Ismael. Habla en español; los nombres de claves de datos y comentarios del código están en español.
 
@@ -24,7 +24,8 @@ npm run preview               # sirve dist/ en localhost:4321
 - `packages/render/` — `render.mjs` (HTML de la lámina, compartido) e `i18n.mjs` (todos los textos en ambos idiomas)
 - `packages/design/planos.css` — tokens de color y estilos
 - `site/build.mjs` — generador del sitio; `site/static/search.js` — buscador; `site/preview.mjs` — servidor local
-- `.github/workflows/` — `deploy.yml` (push a main → Cloudflare Pages), `pr.yml` (valida cada PR), `version.yml` (lunes: versión nueva → PR)
+- `wrangler.jsonc` — Worker `craftchemy` que publica `dist/`; el build (`npm run build`) está configurado en el panel de Cloudflare
+- `.github/workflows/` — `pr.yml` (valida y construye cada PR), `version.yml` (lunes: versión nueva → PR)
 - `content/extra.json` — datos escritos a mano que el juego no trae; `content/descripciones/{es,en}/<id>.md` — descripciones originales
 - `docs/` — ARQUITECTURA, ROADMAP, NOMBRE, LEGAL
 

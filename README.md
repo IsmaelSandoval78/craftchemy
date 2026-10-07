@@ -17,15 +17,19 @@ python3 pipeline/validate.py  # pruebas de cordura
 
 Para cambiar de versión, edita `version_minecraft` en `config/site.json` y corre `npm run fetch && npm run data && python3 pipeline/validate.py`. GitHub Actions lo hace cada lunes y abre un PR.
 
-## Puesta en línea (una sola vez)
+## Puesta en línea (Cloudflare Workers conectado a GitHub)
 
-1. **Cloudflare Pages:** crea un proyecto llamado exactamente `craftchemy` (Workers & Pages → Create → Pages → Direct Upload).
-2. **Token de API:** en My Profile → API Tokens, crea un token con el permiso *Cloudflare Pages: Edit*. Copia también tu *Account ID*, que aparece en la página de inicio de Workers & Pages.
-3. **Secretos en GitHub:** en Settings → Secrets and variables → Actions, agrega `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
-4. **Dominio:** en el proyecto de Pages → Custom domains, agrega `craftchemy.com` y `www.craftchemy.com`. Si el dominio está en otro registrador, apunta sus nameservers a Cloudflare.
-5. **Permisos del workflow semanal:** en Settings → Actions → General, activa "Allow GitHub Actions to create and approve pull requests".
+Cloudflare construye y publica el sitio solo, en cada push. No hacen falta secretos en GitHub.
 
-Desde ahí, cada push a `main` despliega solo.
+1. En Cloudflare: **Workers & Pages → Create → Import a repository**, elige `craftchemy`. El nombre del Worker debe ser `craftchemy`, igual que `name` en `wrangler.jsonc`.
+2. En el Worker → **Settings → Build**:
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy` (es el valor por defecto)
+   - **Production branch:** `main`
+3. **Dominio:** en el Worker → **Settings → Domains & Routes → Add → Custom domain**, agrega `craftchemy.com` y `www.craftchemy.com`. Si el dominio está en otro registrador, primero apunta sus nameservers a Cloudflare.
+4. **Workflow semanal:** en GitHub → Settings → Actions → General, activa "Allow GitHub Actions to create and approve pull requests".
+
+Las ramas que no son `main` generan una versión de vista previa (`wrangler versions upload`) sin tocar producción.
 
 Ver `docs/` para la arquitectura, la hoja de ruta, el nombre y las reglas legales.
 

@@ -4,7 +4,7 @@
 
 - Dominio: **craftchemy.com**
 - Marca paraguas: Craftchemy. Enciclopedia: **Planos** / **Blueprints**. Las herramientas futuras viven bajo la misma marca.
-- Proyecto de Cloudflare Pages: `craftchemy`.
+- Worker de Cloudflare: `craftchemy`.
 - Pendiente: reservar `craftchemy` en TikTok, YouTube, Instagram y X.
 
 Candidatos descartados: Planos de bloques, Blockprint, Cianotipo, Planoteca.

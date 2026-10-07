@@ -14,7 +14,7 @@ PrismarineJS (dureza)       ┘
                             site/build.mjs
           packages/render (HTML + i18n) · packages/icons (PNG) · packages/design (CSS)
                                      ↓
-                     dist/  →  Cloudflare Pages (craftchemy.com)
+                     dist/  →  Cloudflare Workers, assets estáticos (craftchemy.com)
 ```
 
 ## Decisiones
