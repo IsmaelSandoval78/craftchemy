@@ -48,6 +48,10 @@ npm run preview               # sirve dist/ en localhost:4321
 - `air` está en el registro de objetos pero no tiene lámina: son 1.657 objetos.
 - Los íconos que no encajan en ninguna plantilla usan un patrón genérico simétrico; mejorar familias en `familyIcon`.
 
+## El consejo
+
+Asesores de estrategia en `.claude/agents/consejo-*.md` (SEO, E-E-A-T, UI, ciberseguridad, psicología del fan, redes, legal, monetización, analítica). Se convocan con `/consejo` (`.claude/skills/consejo/`) y leen `docs/ESTRATEGIA.md`, donde se registran las decisiones de Ismael.
+
 ## Estado
 
 Fase 0 (cimientos) terminada. Siguiente: **Fase 1**, ver `docs/ROADMAP.md`. Pendientes concretos:
