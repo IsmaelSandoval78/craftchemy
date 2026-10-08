@@ -40,3 +40,36 @@ Leído el 2026-10-08 vía proxy de lectura (r.jina.ai), porque minecraft.net dab
 - Ingresos: anuncios, afiliados de hosting y patrocinios junto al botón de exportar, y apoyo voluntario que no desbloquea nada.
 - El único producto de pago defendible es **editorial**: un libro o PDF de planos de estilos originales, dirigido a adultos, revisado por un abogado.
 - **Marketplace** como opción de largo plazo, si algún día hay empresa y portafolio.
+
+## Anexo (2026-10-08): investigación de mercado
+
+### BuiltByBit: "JN Modular House Assets – Vol. 1" (datos aportados por Ismael)
+- **Precio y ventas:** USD 19,90, publicado el 27-mar-2026 y actualizado el 20-jun-2026. 4.142 vistas, 63 compras (≈1,5 % de conversión) y 5,0★ con 5 reseñas.
+- **Ingreso estimado:** ≈ 10 ventas/mes, unos USD 195 brutos o ~USD 170 netos al mes. Bruto acumulado ≈ USD 1.254.
+- **Producto:** más de 2.000 piezas modulares (assets), no casas terminadas; el comprador es B2B (equipos de servidores). Solo Java 1.21.11, formato schematic y solo inglés. Etiqueta "AI use in product: No".
+- **Lectura:** dinero real pero pequeño y dependiente de tener catálogo. Hueco: español, Bedrock y versión 26.x. Confirma la recomendación: Arquitecto gratis + afiliados/patrocinio, y producto de pago editorial.
+
+### Amazon EE. UU.: búsqueda "minecraft books" (resultados 49–96 de más de 3.000)
+- **Oficiales de Mojang dominan construcción:**
+  - *Exploded Builds: Medieval Fortress*: 4,6★, ~1.000 reseñas. Es el competidor más cercano al concepto de planos.
+  - *Bite-Size Builds*: 4,8★, 639 reseñas.
+  - *Blockopedia*: 590 reseñas.
+- **No oficiales con la fórmula "for Minecrafters" / "Unofficial":**
+  - *Minecrafter Architect: Amazing Starter Homes*: USD 16,99, 4,5★, 79 reseñas.
+  - *Unofficial Minecrafters Master Builder Workshop*: 237 reseñas.
+  - *Ultimate Unofficial Encyclopedia for Minecrafters*: Best Seller, 5.400 reseñas.
+- **Autopublicados en KDP de 2026** con "Minecraft" al inicio del título y peor calificación (4,1★): *Crafting Bible*, *Redstone Guide*.
+- **Público:** casi todo de 6 a 12 años. En Amazon el comprador es el padre o la madre.
+- **No apareció nada en español** (falta verificar amazon.com.mx y amazon.es).
+- **Estimación (regla de dedo):** 1–3 % de los compradores deja reseña, así que 79 reseñas son unos pocos miles de copias en varios años. Regalía KDP en libro de bolsillo de USD 12,99 ≈ USD 3–5 por copia.
+
+### KDP y contenido generado con IA (fuentes secundarias de 2026; verificar la ayuda oficial)
+- **Qué se declara:** el texto, las imágenes y las traducciones generados por IA, con una casilla al subir o actualizar el libro. El uso como asistente (ideas, edición) no se declara.
+- **Visibilidad:** la declaración no es pública.
+- **Si se omite:** se considera violación de política; puede haber retiro del libro y suspensión de la cuenta (se reporta más aplicación en 2026).
+- **Otros límites:** tope diario de títulos nuevos por cuenta. En EE. UU., lo generado solo por IA no tiene derechos de autor.
+- **Para los kits:**
+  - Los dibujos salen de un motor de reglas determinista, no de IA generativa (confirmar con la definición de KDP).
+  - El texto escrito por Claude o traducido por IA se declara.
+  - Recomendación: voz y experiencia de Ismael como autor.
+- **Fuentes:** Authors Guild; Vappingo; ScribeCount; Univers Studio; BuiltWritten; KDP Builder; Writeo.
